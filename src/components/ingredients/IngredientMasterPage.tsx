@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, WeekPlan } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
-import { getMonday } from '../../utils/date';
+import { getMonday, toDateKey } from '../../utils/date';
+import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
 import { IngredientForm } from './IngredientForm';
 import { IngredientList } from './IngredientList';
 import styles from './IngredientMasterPage.module.css';
@@ -24,6 +25,8 @@ export function IngredientMasterPage() {
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [adding, setAdding] = useState(false);
   const thisWeekStart = getMonday(new Date());
+  const today = toDateKey(new Date());
+  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
 
   return (
     <div className={styles.page}>
@@ -59,6 +62,8 @@ export function IngredientMasterPage() {
       <IngredientList
         ingredients={data.ingredients}
         thisWeekStart={thisWeekStart}
+        today={today}
+        effectiveDates={effectiveDates}
         onEdit={(ingredient) => {
           setAdding(false);
           setEditing(ingredient);

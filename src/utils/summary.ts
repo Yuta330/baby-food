@@ -14,6 +14,7 @@ export function summarizeWeek(
   weekStartDate: string,
   weekPlan: WeekPlan | undefined,
   ingredients: Ingredient[],
+  effectiveDates: Map<string, string>,
 ): SummaryRow[] {
   const totals = new Map<string, number>();
   for (const day of weekPlan?.days ?? []) {
@@ -34,7 +35,7 @@ export function summarizeWeek(
         name: ing?.name ?? '(削除された食材)',
         category: ing?.category ?? '緑',
         grams,
-        isFirstThisWeek: isDateInWeek(ing?.firstTriedDate, weekStartDate),
+        isFirstThisWeek: isDateInWeek(effectiveDates.get(ingredientId), weekStartDate),
       };
     })
     .sort(

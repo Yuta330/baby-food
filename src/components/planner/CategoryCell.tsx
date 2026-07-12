@@ -14,6 +14,7 @@ interface Props {
   category: FoodCategory;
   entries: PlanEntry[];
   ingredients: Ingredient[];
+  effectiveDates: Map<string, string>;
 }
 
 const CATEGORY_CLASS: Record<FoodCategory, string> = {
@@ -22,7 +23,15 @@ const CATEGORY_CLASS: Record<FoodCategory, string> = {
   緑: styles.green,
 };
 
-export function CategoryCell({ weekStartDate, date, mealIndex, category, entries, ingredients }: Props) {
+export function CategoryCell({
+  weekStartDate,
+  date,
+  mealIndex,
+  category,
+  entries,
+  ingredients,
+  effectiveDates,
+}: Props) {
   const { addEntry, updateEntry, deleteEntry } = useAppData();
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -38,10 +47,7 @@ export function CategoryCell({ weekStartDate, date, mealIndex, category, entries
             key={entry.id}
             entry={entry}
             ingredientName={ingredientMap.get(entry.ingredientId)?.name ?? '(削除された食材)'}
-            isFirstThisWeek={isDateInWeek(
-              ingredientMap.get(entry.ingredientId)?.firstTriedDate,
-              weekStartDate,
-            )}
+            isFirstThisWeek={isDateInWeek(effectiveDates.get(entry.ingredientId), weekStartDate)}
             onEdit={() => {
               setAdding(false);
               setEditingEntryId(entry.id);

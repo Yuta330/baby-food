@@ -11,11 +11,12 @@ interface Props {
   date: string;
   weekPlan: WeekPlan | undefined;
   ingredients: Ingredient[];
+  effectiveDates: Map<string, string>;
 }
 
 const MEAL_INDEXES = Array.from({ length: MAX_MEALS_PER_DAY }, (_, i) => i);
 
-export function DayCard({ weekStartDate, date, weekPlan, ingredients }: Props) {
+export function DayCard({ weekStartDate, date, weekPlan, ingredients, effectiveDates }: Props) {
   const day = weekPlan?.days.find((d) => d.date === date);
   const mealCount = day ? day.meals.length : 1;
 
@@ -59,6 +60,7 @@ export function DayCard({ weekStartDate, date, weekPlan, ingredients }: Props) {
                       return (ing?.category ?? '緑') === category;
                     })}
                     ingredients={ingredients}
+                    effectiveDates={effectiveDates}
                   />
                 )}
               </div>
