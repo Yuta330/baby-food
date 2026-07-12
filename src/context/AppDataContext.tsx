@@ -4,6 +4,7 @@ import { MAX_MEALS_PER_DAY } from '../types';
 import { presetIngredients } from '../data/presetIngredients';
 import { getWeekDates } from '../utils/date';
 import { createId } from '../utils/id';
+import { fillEmptyDaysFromWeek } from '../utils/copyWeek';
 
 const STORAGE_KEY = 'babyFoodApp.v2';
 const LEGACY_STORAGE_KEY = 'babyFoodApp.v1';
@@ -17,6 +18,7 @@ type Action =
   | { type: 'DELETE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entryId: string }
   | { type: 'ADD_MEAL'; weekStartDate: string; date: string }
   | { type: 'REMOVE_LAST_MEAL'; weekStartDate: string; date: string }
+  | { type: 'COPY_WEEK'; sourceWeekStartDate: string; targetWeekStartDate: string }
   | { type: 'REPLACE_ALL'; data: AppData };
 
 function createEmptyMeal(): Meal {
@@ -129,6 +131,16 @@ function appDataReducer(state: AppData, action: Action): AppData {
           ),
         ),
       };
+    case 'COPY_WEEK': {
+      const source = state.weekPlans.find((w) => w.weekStartDate === action.sourceWeekStartDate);
+      if (!source) return state;
+      return {
+        ...state,
+        weekPlans: withWeekPlan(state.weekPlans, action.targetWeekStartDate, (weekPlan) =>
+          fillEmptyDaysFromWeek(source, weekPlan),
+        ),
+      };
+    }
     case 'REPLACE_ALL':
       return action.data;
     default:
@@ -203,6 +215,7 @@ interface AppDataContextValue {
   deleteEntry: (weekStartDate: string, date: string, mealIndex: number, entryId: string) => void;
   addMeal: (weekStartDate: string, date: string) => void;
   removeLastMeal: (weekStartDate: string, date: string) => void;
+  copyWeek: (sourceWeekStartDate: string, targetWeekStartDate: string) => void;
   replaceAllData: (data: AppData) => void;
   getWeekPlan: (weekStartDate: string) => WeekPlan | undefined;
 }
@@ -230,6 +243,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     addMeal: (weekStartDate, date) => dispatch({ type: 'ADD_MEAL', weekStartDate, date }),
     removeLastMeal: (weekStartDate, date) =>
       dispatch({ type: 'REMOVE_LAST_MEAL', weekStartDate, date }),
+    copyWeek: (sourceWeekStartDate, targetWeekStartDate) =>
+      dispatch({ type: 'COPY_WEEK', sourceWeekStartDate, targetWeekStartDate }),
     replaceAllData: (data) => dispatch({ type: 'REPLACE_ALL', data }),
     getWeekPlan: (weekStartDate) => state.weekPlans.find((w) => w.weekStartDate === weekStartDate),
   };

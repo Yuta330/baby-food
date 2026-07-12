@@ -5,9 +5,16 @@ import styles from './WeekSelector.module.css';
 interface Props {
   weekStartDate: string;
   onChange: (weekStartDate: string) => void;
+  onCopyPreviousWeek?: () => void;
+  canCopyPreviousWeek?: boolean;
 }
 
-export function WeekSelector({ weekStartDate, onChange }: Props) {
+export function WeekSelector({
+  weekStartDate,
+  onChange,
+  onCopyPreviousWeek,
+  canCopyPreviousWeek,
+}: Props) {
   return (
     <div className={styles.selector}>
       <button type="button" onClick={() => onChange(addDays(weekStartDate, -7))}>
@@ -17,6 +24,16 @@ export function WeekSelector({ weekStartDate, onChange }: Props) {
       <button type="button" onClick={() => onChange(addDays(weekStartDate, 7))}>
         翌週 →
       </button>
+      {onCopyPreviousWeek && (
+        <button
+          type="button"
+          className={styles.copyButton}
+          disabled={!canCopyPreviousWeek}
+          onClick={onCopyPreviousWeek}
+        >
+          先週の内容をコピー
+        </button>
+      )}
     </div>
   );
 }
