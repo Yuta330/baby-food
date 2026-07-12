@@ -1,5 +1,7 @@
 import type { Ingredient } from '../types';
 
+// 新しいプリセットをここに追加したら、src/context/AppDataContext.tsxのNEW_PRESET_IDSにも
+// idを追記すること(忘れると既存ユーザーには反映されない)。
 export const presetIngredients: Ingredient[] = [
   // 赤 = たんぱく質・体を作る
   { id: 'preset-tofu', name: '豆腐', category: '赤', minAgeMonths: 5 },

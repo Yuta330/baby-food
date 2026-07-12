@@ -52,6 +52,7 @@ export function IngredientMasterPage() {
 
       {editing && (
         <IngredientForm
+          key={editing.id}
           initial={editing}
           onSave={(name, category, firstTriedDate, minAgeMonths, prohibited) => {
             updateIngredient({

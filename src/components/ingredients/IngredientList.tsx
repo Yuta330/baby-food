@@ -59,7 +59,7 @@ export function IngredientList({
                           <span className={styles.unexperiencedBadge}>未経験</span>
                         )}
                         {status === 'notYetRecommended' && (
-                          <span className={styles.unexperiencedBadge}>
+                          <span className={styles.notYetRecommendedBadge}>
                             非推奨({ingredient.minAgeMonths}ヶ月〜)
                           </span>
                         )}

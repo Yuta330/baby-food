@@ -85,6 +85,7 @@ export function CategoryCell({
         )}
         {editingEntry && (
           <IngredientPicker
+            key={editingEntry.id}
             category={category}
             ingredients={ingredients}
             date={date}

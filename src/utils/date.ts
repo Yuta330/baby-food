@@ -51,12 +51,20 @@ export function isDateInWeek(date: string | undefined, weekStartDate: string): b
   return date >= weekStartDate && date <= weekEnd; // YYYY-MM-DD文字列は辞書順=時系列順
 }
 
-/** 誕生日から指定日時点での満月齢を算出。birthday未設定/atDateが誕生日より前ならnull */
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * 誕生日から指定日時点での満月齢を算出。
+ * birthday未設定、または'YYYY-MM-DD'形式でない(壊れたバックアップ等)ならnull(制限なし扱い)。
+ * atDateが誕生日より前(まだ生まれていない)の場合は0(最も未熟な月齢)にクランプする
+ * — nullを返すと「誕生日未設定」と区別できず、禁止食材が無制限扱いになってしまうため。
+ * ※フォーマットのみ検証し、暦として妥当か(例: 2026-13-45)までは検証しない。
+ */
 export function getAgeInMonths(birthday: string | undefined, atDate: string): number | null {
-  if (!birthday || birthday > atDate) return null;
+  if (!birthday || !DATE_KEY_RE.test(birthday)) return null;
   const [by, bm, bd] = birthday.split('-').map(Number);
   const [ay, am, ad] = atDate.split('-').map(Number);
   let months = (ay - by) * 12 + (am - bm);
   if (ad < bd) months -= 1;
-  return months;
+  return Math.max(0, months);
 }

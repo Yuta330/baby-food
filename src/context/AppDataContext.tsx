@@ -138,14 +138,14 @@ function appDataReducer(state: AppData, action: Action): AppData {
       return {
         ...state,
         weekPlans: withWeekPlan(state.weekPlans, action.targetWeekStartDate, (weekPlan) =>
-          fillEmptyDaysFromWeek(source, weekPlan),
+          fillEmptyDaysFromWeek(source, weekPlan, state.ingredients, state.settings.babyBirthday),
         ),
       };
     }
     case 'SET_BABY_BIRTHDAY':
       return { ...state, settings: { ...state.settings, babyBirthday: action.babyBirthday } };
     case 'REPLACE_ALL':
-      return action.data;
+      return seedNewPresetsAndBackfill(action.data);
     default:
       return state;
   }
@@ -188,7 +188,10 @@ function loadLegacyAppData(): AppData | null {
 }
 
 const PRESET_MAP = new Map(presetIngredients.map((i) => [i.id, i]));
-// この機能で新規追加したプリセットのみ対象(過去に削除された他のプリセットは復活させない)
+// この機能で新規追加したプリセットのみ対象(過去に削除された他のプリセットは復活させない)。
+// 新しいプリセットをpresetIngredients.tsに追加する際は、既存ユーザーにも反映されるよう
+// 必ずここにもidを追記すること(忘れるとpresetRecommendationsSeeded済みの既存ユーザーには
+// 永久に反映されない)。
 const NEW_PRESET_IDS = ['preset-honey'];
 
 function backfillRecommendationData(ingredients: Ingredient[]): Ingredient[] {
@@ -202,6 +205,18 @@ function backfillRecommendationData(ingredients: Ingredient[]): Ingredient[] {
     (p) => NEW_PRESET_IDS.includes(p.id) && !existingIds.has(p.id),
   );
   return [...merged, ...missing];
+}
+
+// 既存プリセットへの月齢データ補完と新規プリセットの追加を1回だけ行う。
+// loadAppData(起動時)とREPLACE_ALL(バックアップ復元時)の両方から呼ぶことで、
+// 復元直後もマイグレーション未適用のまま放置されないようにする。
+function seedNewPresetsAndBackfill(data: AppData): AppData {
+  if (data.settings.presetRecommendationsSeeded) return data;
+  return {
+    ...data,
+    ingredients: backfillRecommendationData(data.ingredients),
+    settings: { ...data.settings, presetRecommendationsSeeded: true },
+  };
 }
 
 function loadAppData(): AppData {
@@ -222,12 +237,7 @@ function loadAppData(): AppData {
     }
   })();
 
-  if (base.settings.presetRecommendationsSeeded) return base;
-  return {
-    ...base,
-    ingredients: backfillRecommendationData(base.ingredients),
-    settings: { ...base.settings, presetRecommendationsSeeded: true },
-  };
+  return seedNewPresetsAndBackfill(base);
 }
 
 function saveAppData(data: AppData): void {

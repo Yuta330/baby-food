@@ -26,9 +26,10 @@ export function IngredientPicker({
   const options = ingredients.filter((i) => i.category === category);
   const ageMonths = getAgeInMonths(babyBirthday, date);
   const optionStatus = new Map(options.map((i) => [i.id, getRecommendationStatus(i, ageMonths)]));
-  const firstSelectable =
-    options.find((i) => optionStatus.get(i.id) !== 'forbidden')?.id ?? options[0]?.id ?? '';
-  const [ingredientId, setIngredientId] = useState(initial?.ingredientId ?? firstSelectable);
+  const [ingredientId, setIngredientId] = useState(() => {
+    const selectable = options.find((i) => optionStatus.get(i.id) !== 'forbidden');
+    return initial?.ingredientId ?? selectable?.id ?? options[0]?.id ?? '';
+  });
   const [grams, setGrams] = useState(initial ? String(initial.grams) : '');
 
   if (options.length === 0) {
