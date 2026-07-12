@@ -33,6 +33,11 @@ export function formatMonthDay(dateKey: string): string {
   return `${m}/${d}`;
 }
 
+export function formatYmd(dateKey: string): string {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return `${y}/${pad2(m)}/${pad2(d)}`;
+}
+
 export function getDayLabel(dateKey: string, weekStartDate: string): string {
   const index = getWeekDates(weekStartDate).indexOf(dateKey);
   return DAY_LABELS[index] ?? '';

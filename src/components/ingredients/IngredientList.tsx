@@ -1,13 +1,12 @@
 import type { FoodCategory, Ingredient } from '../../types';
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABEL } from '../../types';
-import { formatMonthDay, isDateInWeek } from '../../utils/date';
+import { formatYmd } from '../../utils/date';
 import { hasNoPastRecord } from '../../utils/ingredientHistory';
 import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
 import styles from './IngredientList.module.css';
 
 interface Props {
   ingredients: Ingredient[];
-  thisWeekStart: string;
   today: string;
   effectiveDates: Map<string, string>;
   ageMonths: number | null;
@@ -23,7 +22,6 @@ const CATEGORY_CLASS: Record<FoodCategory, string> = {
 
 export function IngredientList({
   ingredients,
-  thisWeekStart,
   today,
   effectiveDates,
   ageMonths,
@@ -43,17 +41,16 @@ export function IngredientList({
               <ul className={styles.list}>
                 {items.map((ingredient) => {
                   const effectiveDate = effectiveDates.get(ingredient.id);
-                  const showAutoEstimate = !ingredient.firstTriedDate && effectiveDate;
+                  const isAutoEstimate = !ingredient.firstTriedDate && effectiveDate;
                   const status = getRecommendationStatus(ingredient, ageMonths);
                   return (
                     <li key={ingredient.id} className={styles.item}>
                       <span className={styles.name}>
                         {ingredient.name}
-                        {showAutoEstimate && (
-                          <span className={styles.estimate}>(推定 {formatMonthDay(effectiveDate)})</span>
-                        )}
-                        {isDateInWeek(effectiveDate, thisWeekStart) && (
-                          <span className={styles.badge}>はじめて</span>
+                        {effectiveDate && (
+                          <span className={styles.estimate}>
+                            ({isAutoEstimate ? `推定 ${formatYmd(effectiveDate)}` : formatYmd(effectiveDate)})
+                          </span>
                         )}
                         {hasNoPastRecord(effectiveDate, today) && (
                           <span className={styles.unexperiencedBadge}>未経験</span>

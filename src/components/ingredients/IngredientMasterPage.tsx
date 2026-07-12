@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, WeekPlan } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
-import { getAgeInMonths, getMonday, toDateKey } from '../../utils/date';
+import { getAgeInMonths, toDateKey } from '../../utils/date';
 import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
 import { IngredientForm } from './IngredientForm';
 import { IngredientList } from './IngredientList';
@@ -24,7 +24,6 @@ export function IngredientMasterPage() {
   const { data, addIngredient, updateIngredient, deleteIngredient } = useAppData();
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [adding, setAdding] = useState(false);
-  const thisWeekStart = getMonday(new Date());
   const today = toDateKey(new Date());
   const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
   const ageMonths = getAgeInMonths(data.settings.babyBirthday, today);
@@ -75,7 +74,6 @@ export function IngredientMasterPage() {
 
       <IngredientList
         ingredients={data.ingredients}
-        thisWeekStart={thisWeekStart}
         today={today}
         effectiveDates={effectiveDates}
         ageMonths={ageMonths}
