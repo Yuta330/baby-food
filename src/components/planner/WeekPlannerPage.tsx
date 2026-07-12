@@ -23,7 +23,6 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
 
   return (
     <div className={styles.page}>
-      <h1>週間プランナー</h1>
       <WeekSelector
         weekStartDate={weekStartDate}
         onChange={onWeekChange}

@@ -19,7 +19,6 @@ export function WeekSummaryPage({ weekStartDate, onWeekChange }: Props) {
 
   return (
     <div className={styles.page}>
-      <h1>週間サマリー(買い物リスト)</h1>
       <WeekSelector weekStartDate={weekStartDate} onChange={onWeekChange} />
       <SummaryTable rows={rows} />
     </div>

@@ -31,8 +31,6 @@ export function IngredientMasterPage() {
 
   return (
     <div className={styles.page}>
-      <h1>食材マスタ</h1>
-
       {adding && (
         <IngredientForm
           onSave={(name, category: FoodCategory, firstTriedDate, minAgeMonths, prohibited) => {
