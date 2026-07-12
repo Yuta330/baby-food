@@ -28,8 +28,14 @@ export function SummaryTable({ rows }: Props) {
             <h3 className={CATEGORY_CLASS[category]}>{FOOD_CATEGORY_LABEL[category]}</h3>
             <ul className={styles.list}>
               {items.map((row) => (
-                <li key={row.ingredientId} className={styles.item}>
-                  <span>{row.name}</span>
+                <li
+                  key={row.ingredientId}
+                  className={row.isFirstThisWeek ? `${styles.item} ${styles.first}` : styles.item}
+                >
+                  <span className={styles.name}>
+                    {row.isFirstThisWeek && <span className={styles.badge}>はじめて</span>}
+                    {row.name}
+                  </span>
                   <span className={styles.grams}>{row.grams}g</span>
                 </li>
               ))}

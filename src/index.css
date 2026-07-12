@@ -13,6 +13,10 @@
   --border: #dfdfdf;
   --accent: #4a90a4;
 
+  --highlight-bg: #fff3cd;
+  --highlight-border: #e6a817;
+  --highlight-text: #8a6100;
+
   font: 16px/1.5 system-ui, 'Hiragino Sans', 'Yu Gothic', 'Segoe UI', sans-serif;
   color: var(--text);
   background: var(--bg);

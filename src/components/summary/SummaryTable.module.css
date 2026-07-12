@@ -39,6 +39,25 @@
   border-bottom: 1px solid var(--border);
 }
 
+.first {
+  background: var(--highlight-bg);
+  border-radius: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  color: var(--highlight-text);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
 .grams {
   font-weight: 600;
 }

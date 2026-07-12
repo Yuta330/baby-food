@@ -12,6 +12,7 @@ export interface Ingredient {
   id: string;
   name: string;
   category: FoodCategory;
+  firstTriedDate?: string; // 'YYYY-MM-DD'、初めて食べた日(未設定可)
 }
 
 export interface PlanEntry {

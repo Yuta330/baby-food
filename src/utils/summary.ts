@@ -1,14 +1,17 @@
 import type { FoodCategory, Ingredient, WeekPlan } from '../types';
 import { FOOD_CATEGORIES } from '../types';
+import { isDateInWeek } from './date';
 
 export interface SummaryRow {
   ingredientId: string;
   name: string;
   category: FoodCategory;
   grams: number;
+  isFirstThisWeek: boolean;
 }
 
 export function summarizeWeek(
+  weekStartDate: string,
   weekPlan: WeekPlan | undefined,
   ingredients: Ingredient[],
 ): SummaryRow[] {
@@ -31,6 +34,7 @@ export function summarizeWeek(
         name: ing?.name ?? '(削除された食材)',
         category: ing?.category ?? '緑',
         grams,
+        isFirstThisWeek: isDateInWeek(ing?.firstTriedDate, weekStartDate),
       };
     })
     .sort(

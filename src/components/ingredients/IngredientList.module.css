@@ -39,6 +39,22 @@
   border-bottom: 1px solid var(--border);
 }
 
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  background: var(--highlight-bg);
+  border: 1px solid var(--highlight-border);
+  color: var(--highlight-text);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
 .itemActions {
   display: flex;
   gap: 4px;

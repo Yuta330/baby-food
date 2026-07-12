@@ -5,13 +5,14 @@ import styles from './IngredientForm.module.css';
 
 interface Props {
   initial?: Ingredient;
-  onSave: (name: string, category: FoodCategory) => void;
+  onSave: (name: string, category: FoodCategory, firstTriedDate?: string) => void;
   onCancel: () => void;
 }
 
 export function IngredientForm({ initial, onSave, onCancel }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [category, setCategory] = useState<FoodCategory>(initial?.category ?? '赤');
+  const [firstTriedDate, setFirstTriedDate] = useState(initial?.firstTriedDate ?? '');
 
   const isValid = name.trim().length > 0;
 
@@ -20,7 +21,7 @@ export function IngredientForm({ initial, onSave, onCancel }: Props) {
       className={styles.form}
       onSubmit={(e) => {
         e.preventDefault();
-        if (isValid) onSave(name.trim(), category);
+        if (isValid) onSave(name.trim(), category, firstTriedDate || undefined);
       }}
     >
       <input
@@ -37,6 +38,14 @@ export function IngredientForm({ initial, onSave, onCancel }: Props) {
           </option>
         ))}
       </select>
+      <label className={styles.dateField}>
+        初めて食べた日
+        <input
+          type="date"
+          value={firstTriedDate}
+          onChange={(e) => setFirstTriedDate(e.target.value)}
+        />
+      </label>
       <div className={styles.actions}>
         <button type="button" onClick={onCancel}>
           キャンセル

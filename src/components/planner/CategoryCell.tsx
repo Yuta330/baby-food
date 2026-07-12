@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, PlanEntry } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
+import { isDateInWeek } from '../../utils/date';
 import { EntryChip } from './EntryChip';
 import { IngredientPicker } from './IngredientPicker';
 import styles from './CategoryCell.module.css';
@@ -37,6 +38,10 @@ export function CategoryCell({ weekStartDate, date, mealIndex, category, entries
             key={entry.id}
             entry={entry}
             ingredientName={ingredientMap.get(entry.ingredientId)?.name ?? '(削除された食材)'}
+            isFirstThisWeek={isDateInWeek(
+              ingredientMap.get(entry.ingredientId)?.firstTriedDate,
+              weekStartDate,
+            )}
             onEdit={() => {
               setAdding(false);
               setEditingEntryId(entry.id);

@@ -11,7 +11,7 @@ interface Props {
 
 export function WeekSummaryPage({ weekStartDate, onWeekChange }: Props) {
   const { data, getWeekPlan } = useAppData();
-  const rows = summarizeWeek(getWeekPlan(weekStartDate), data.ingredients);
+  const rows = summarizeWeek(weekStartDate, getWeekPlan(weekStartDate), data.ingredients);
 
   return (
     <div className={styles.page}>

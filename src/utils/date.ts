@@ -44,3 +44,9 @@ export function formatWeekRange(weekStartDate: string): string {
   const last = dates[6];
   return `${formatMonthDay(first)}(月) 〜 ${formatMonthDay(last)}(日)`;
 }
+
+export function isDateInWeek(date: string | undefined, weekStartDate: string): boolean {
+  if (!date) return false;
+  const weekEnd = addDays(weekStartDate, 6);
+  return date >= weekStartDate && date <= weekEnd; // YYYY-MM-DD文字列は辞書順=時系列順
+}

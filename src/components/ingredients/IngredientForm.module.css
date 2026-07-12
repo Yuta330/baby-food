@@ -17,6 +17,14 @@
   border-radius: 4px;
 }
 
+.dateField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 .actions {
   display: flex;
   gap: 6px;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, WeekPlan } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
+import { getMonday } from '../../utils/date';
 import { IngredientForm } from './IngredientForm';
 import { IngredientList } from './IngredientList';
 import styles from './IngredientMasterPage.module.css';
@@ -22,6 +23,7 @@ export function IngredientMasterPage() {
   const { data, addIngredient, updateIngredient, deleteIngredient } = useAppData();
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [adding, setAdding] = useState(false);
+  const thisWeekStart = getMonday(new Date());
 
   return (
     <div className={styles.page}>
@@ -29,8 +31,8 @@ export function IngredientMasterPage() {
 
       {adding && (
         <IngredientForm
-          onSave={(name, category: FoodCategory) => {
-            addIngredient({ id: createId(), name, category });
+          onSave={(name, category: FoodCategory, firstTriedDate) => {
+            addIngredient({ id: createId(), name, category, firstTriedDate });
             setAdding(false);
           }}
           onCancel={() => setAdding(false)}
@@ -40,8 +42,8 @@ export function IngredientMasterPage() {
       {editing && (
         <IngredientForm
           initial={editing}
-          onSave={(name, category) => {
-            updateIngredient({ id: editing.id, name, category });
+          onSave={(name, category, firstTriedDate) => {
+            updateIngredient({ id: editing.id, name, category, firstTriedDate });
             setEditing(null);
           }}
           onCancel={() => setEditing(null)}
@@ -56,6 +58,7 @@ export function IngredientMasterPage() {
 
       <IngredientList
         ingredients={data.ingredients}
+        thisWeekStart={thisWeekStart}
         onEdit={(ingredient) => {
           setAdding(false);
           setEditing(ingredient);
