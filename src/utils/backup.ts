@@ -30,7 +30,8 @@ export function parseBackupFile(raw: string): AppData {
     throw new Error('バックアップファイルの形式が正しくありません。');
   }
 
-  return data;
+  const settings = data.settings && typeof data.settings === 'object' ? data.settings : {};
+  return { ...data, settings };
 }
 
 export function buildBackupFilename(date: Date): string {

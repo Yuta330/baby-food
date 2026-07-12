@@ -6,6 +6,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'planner', label: '週間プランナー' },
   { key: 'ingredients', label: '食材マスタ' },
   { key: 'summary', label: '週間サマリー' },
+  { key: 'settings', label: '設定' },
 ];
 
 interface Props {

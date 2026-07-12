@@ -12,11 +12,19 @@ interface Props {
   weekPlan: WeekPlan | undefined;
   ingredients: Ingredient[];
   effectiveDates: Map<string, string>;
+  babyBirthday: string | undefined;
 }
 
 const MEAL_INDEXES = Array.from({ length: MAX_MEALS_PER_DAY }, (_, i) => i);
 
-export function DayCard({ weekStartDate, date, weekPlan, ingredients, effectiveDates }: Props) {
+export function DayCard({
+  weekStartDate,
+  date,
+  weekPlan,
+  ingredients,
+  effectiveDates,
+  babyBirthday,
+}: Props) {
   const day = weekPlan?.days.find((d) => d.date === date);
   const mealCount = day ? day.meals.length : 1;
 
@@ -61,6 +69,7 @@ export function DayCard({ weekStartDate, date, weekPlan, ingredients, effectiveD
                     })}
                     ingredients={ingredients}
                     effectiveDates={effectiveDates}
+                    babyBirthday={babyBirthday}
                   />
                 )}
               </div>

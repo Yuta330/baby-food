@@ -15,6 +15,7 @@ interface Props {
   entries: PlanEntry[];
   ingredients: Ingredient[];
   effectiveDates: Map<string, string>;
+  babyBirthday: string | undefined;
 }
 
 const CATEGORY_CLASS: Record<FoodCategory, string> = {
@@ -31,6 +32,7 @@ export function CategoryCell({
   entries,
   ingredients,
   effectiveDates,
+  babyBirthday,
 }: Props) {
   const { addEntry, updateEntry, deleteEntry } = useAppData();
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
@@ -72,6 +74,8 @@ export function CategoryCell({
           <IngredientPicker
             category={category}
             ingredients={ingredients}
+            date={date}
+            babyBirthday={babyBirthday}
             onSave={(ingredientId, grams) => {
               addEntry(weekStartDate, date, mealIndex, { id: createId(), ingredientId, grams });
               setAdding(false);
@@ -81,8 +85,11 @@ export function CategoryCell({
         )}
         {editingEntry && (
           <IngredientPicker
+            key={editingEntry.id}
             category={category}
             ingredients={ingredients}
+            date={date}
+            babyBirthday={babyBirthday}
             initial={editingEntry}
             onSave={(ingredientId, grams) => {
               updateEntry(weekStartDate, date, mealIndex, { id: editingEntry.id, ingredientId, grams });
