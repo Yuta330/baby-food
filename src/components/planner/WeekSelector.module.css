@@ -15,3 +15,12 @@
 .range {
   font-weight: 600;
 }
+
+.copyButton {
+  margin-left: auto;
+}
+
+.copyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
