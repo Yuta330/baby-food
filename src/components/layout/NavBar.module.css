@@ -36,6 +36,14 @@
   color: #fff;
 }
 
+.tab:has(svg),
+.tabActive:has(svg) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+
 @media (max-width: 480px) {
   .nav {
     padding: 10px 12px;
