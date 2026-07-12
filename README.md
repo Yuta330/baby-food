@@ -1,32 +1,28 @@
-# React + TypeScript + Vite
+# 離乳食 週間プランナー
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+赤ちゃんの離乳食を1週間単位で計画するためのWebアプリです。食材とグラム数を日ごと・食事ごと・栄養カテゴリ(3色食品群)ごとに登録していくと、その週に必要な食材と合計量を買い物リストとして確認できます。
 
-Currently, two official plugins are available:
+## 主な機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **週間プランナー**: 月〜日の7日間、1日あたり1〜3食を自由に増減しながら、食事ごとに赤(たんぱく質)・黄(炭水化物)・緑(ビタミン・ミネラル)のカテゴリで食材とグラム数を登録できます。
+- **食材マスタ**: 食材の追加・編集・削除に加え、「初めて食べた日」を記録できます。表示中の週で初めて食べる食材は、プランナー・サマリー・食材マスタのすべてで強調表示されます。
+- **週間サマリー(買い物リスト)**: その週に必要な食材ごとの合計グラム数を、栄養カテゴリ別に一覧表示します。
 
-## React Compiler
+## 技術構成
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [Vite](https://vite.dev/) + [React](https://react.dev/) + TypeScript
+- バックエンド・データベースは無く、ブラウザの `localStorage` のみでデータを保存します(端末・ブラウザをまたいだ同期はできません)。
 
-## Expanding the Oxlint configuration
+## 開発
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install      # 依存関係のインストール
+npm run dev      # 開発サーバー起動 (http://localhost:5173)
+npm run build    # 型チェック + 本番ビルド
+npm run preview  # ビルド結果のプレビュー
+npm run lint     # Lint実行
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 公開URL
+
+https://Yuta330.github.io/baby-food/
