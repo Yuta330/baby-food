@@ -1,5 +1,6 @@
 import styles from './NavBar.module.css';
 import type { Tab } from '../../App';
+import { BackupControls } from './BackupControls';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'planner', label: '週間プランナー' },
@@ -27,6 +28,7 @@ export function NavBar({ current, onChange }: Props) {
             {tab.label}
           </button>
         ))}
+        <BackupControls />
       </div>
     </nav>
   );

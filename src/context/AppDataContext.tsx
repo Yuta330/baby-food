@@ -16,7 +16,8 @@ type Action =
   | { type: 'UPDATE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entry: PlanEntry }
   | { type: 'DELETE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entryId: string }
   | { type: 'ADD_MEAL'; weekStartDate: string; date: string }
-  | { type: 'REMOVE_LAST_MEAL'; weekStartDate: string; date: string };
+  | { type: 'REMOVE_LAST_MEAL'; weekStartDate: string; date: string }
+  | { type: 'REPLACE_ALL'; data: AppData };
 
 function createEmptyMeal(): Meal {
   return { id: createId(), entries: [] };
@@ -128,6 +129,8 @@ function appDataReducer(state: AppData, action: Action): AppData {
           ),
         ),
       };
+    case 'REPLACE_ALL':
+      return action.data;
     default:
       return state;
   }
@@ -200,6 +203,7 @@ interface AppDataContextValue {
   deleteEntry: (weekStartDate: string, date: string, mealIndex: number, entryId: string) => void;
   addMeal: (weekStartDate: string, date: string) => void;
   removeLastMeal: (weekStartDate: string, date: string) => void;
+  replaceAllData: (data: AppData) => void;
   getWeekPlan: (weekStartDate: string) => WeekPlan | undefined;
 }
 
@@ -226,6 +230,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     addMeal: (weekStartDate, date) => dispatch({ type: 'ADD_MEAL', weekStartDate, date }),
     removeLastMeal: (weekStartDate, date) =>
       dispatch({ type: 'REMOVE_LAST_MEAL', weekStartDate, date }),
+    replaceAllData: (data) => dispatch({ type: 'REPLACE_ALL', data }),
     getWeekPlan: (weekStartDate) => state.weekPlans.find((w) => w.weekStartDate === weekStartDate),
   };
 

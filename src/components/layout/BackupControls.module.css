@@ -1,0 +1,35 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-left: 12px;
+  margin-left: 4px;
+  border-left: 1px solid var(--border);
+}
+
+.button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 6px 12px;
+  color: var(--text);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .controls {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+  }
+
+  .button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+}
