@@ -3,6 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 英語で考え、応答は日本語で実施すること。
+Gitへのアクセスにはghを用いること。
 
 ## Project
 
