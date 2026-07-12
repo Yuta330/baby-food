@@ -16,6 +16,7 @@
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -26,10 +27,27 @@
   background: var(--surface);
   padding: 6px 14px;
   color: var(--text);
+  white-space: nowrap;
 }
 
 .tabActive {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 10px 12px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .tab,
+  .tabActive {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
 }
