@@ -21,6 +21,10 @@
   --info-border: #7ba7e6;
   --info-text: #2f5fa8;
 
+  --danger-bg: #fdecea;
+  --danger-border: #d64545;
+  --danger-text: #a12626;
+
   font: 16px/1.5 system-ui, 'Hiragino Sans', 'Yu Gothic', 'Segoe UI', sans-serif;
   color: var(--text);
   background: var(--bg);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, WeekPlan } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
-import { getMonday, toDateKey } from '../../utils/date';
+import { getAgeInMonths, getMonday, toDateKey } from '../../utils/date';
 import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
 import { IngredientForm } from './IngredientForm';
 import { IngredientList } from './IngredientList';
@@ -27,6 +27,7 @@ export function IngredientMasterPage() {
   const thisWeekStart = getMonday(new Date());
   const today = toDateKey(new Date());
   const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
+  const ageMonths = getAgeInMonths(data.settings.babyBirthday, today);
 
   return (
     <div className={styles.page}>
@@ -34,8 +35,15 @@ export function IngredientMasterPage() {
 
       {adding && (
         <IngredientForm
-          onSave={(name, category: FoodCategory, firstTriedDate) => {
-            addIngredient({ id: createId(), name, category, firstTriedDate });
+          onSave={(name, category: FoodCategory, firstTriedDate, minAgeMonths, prohibited) => {
+            addIngredient({
+              id: createId(),
+              name,
+              category,
+              firstTriedDate,
+              minAgeMonths,
+              prohibited,
+            });
             setAdding(false);
           }}
           onCancel={() => setAdding(false)}
@@ -45,8 +53,15 @@ export function IngredientMasterPage() {
       {editing && (
         <IngredientForm
           initial={editing}
-          onSave={(name, category, firstTriedDate) => {
-            updateIngredient({ id: editing.id, name, category, firstTriedDate });
+          onSave={(name, category, firstTriedDate, minAgeMonths, prohibited) => {
+            updateIngredient({
+              id: editing.id,
+              name,
+              category,
+              firstTriedDate,
+              minAgeMonths,
+              prohibited,
+            });
             setEditing(null);
           }}
           onCancel={() => setEditing(null)}
@@ -64,6 +79,7 @@ export function IngredientMasterPage() {
         thisWeekStart={thisWeekStart}
         today={today}
         effectiveDates={effectiveDates}
+        ageMonths={ageMonths}
         onEdit={(ingredient) => {
           setAdding(false);
           setEditing(ingredient);

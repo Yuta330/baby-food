@@ -50,3 +50,13 @@ export function isDateInWeek(date: string | undefined, weekStartDate: string): b
   const weekEnd = addDays(weekStartDate, 6);
   return date >= weekStartDate && date <= weekEnd; // YYYY-MM-DD文字列は辞書順=時系列順
 }
+
+/** 誕生日から指定日時点での満月齢を算出。birthday未設定/atDateが誕生日より前ならnull */
+export function getAgeInMonths(birthday: string | undefined, atDate: string): number | null {
+  if (!birthday || birthday > atDate) return null;
+  const [by, bm, bd] = birthday.split('-').map(Number);
+  const [ay, am, ad] = atDate.split('-').map(Number);
+  let months = (ay - by) * 12 + (am - bm);
+  if (ad < bd) months -= 1;
+  return months;
+}

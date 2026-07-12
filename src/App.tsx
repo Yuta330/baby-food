@@ -4,9 +4,10 @@ import { NavBar } from './components/layout/NavBar';
 import { WeekPlannerPage } from './components/planner/WeekPlannerPage';
 import { IngredientMasterPage } from './components/ingredients/IngredientMasterPage';
 import { WeekSummaryPage } from './components/summary/WeekSummaryPage';
+import { SettingsPage } from './components/settings/SettingsPage';
 import { getMonday } from './utils/date';
 
-export type Tab = 'planner' | 'ingredients' | 'summary';
+export type Tab = 'planner' | 'ingredients' | 'summary' | 'settings';
 
 function App() {
   const [tab, setTab] = useState<Tab>('planner');
@@ -22,6 +23,7 @@ function App() {
       {tab === 'summary' && (
         <WeekSummaryPage weekStartDate={weekStartDate} onWeekChange={setWeekStartDate} />
       )}
+      {tab === 'settings' && <SettingsPage />}
     </AppDataProvider>
   );
 }

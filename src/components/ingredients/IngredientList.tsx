@@ -2,6 +2,7 @@ import type { FoodCategory, Ingredient } from '../../types';
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABEL } from '../../types';
 import { formatMonthDay, isDateInWeek } from '../../utils/date';
 import { hasNoPastRecord } from '../../utils/ingredientHistory';
+import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
 import styles from './IngredientList.module.css';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
   thisWeekStart: string;
   today: string;
   effectiveDates: Map<string, string>;
+  ageMonths: number | null;
   onEdit: (ingredient: Ingredient) => void;
   onDelete: (ingredient: Ingredient) => void;
 }
@@ -24,6 +26,7 @@ export function IngredientList({
   thisWeekStart,
   today,
   effectiveDates,
+  ageMonths,
   onEdit,
   onDelete,
 }: Props) {
@@ -41,6 +44,7 @@ export function IngredientList({
                 {items.map((ingredient) => {
                   const effectiveDate = effectiveDates.get(ingredient.id);
                   const showAutoEstimate = !ingredient.firstTriedDate && effectiveDate;
+                  const status = getRecommendationStatus(ingredient, ageMonths);
                   return (
                     <li key={ingredient.id} className={styles.item}>
                       <span className={styles.name}>
@@ -53,6 +57,16 @@ export function IngredientList({
                         )}
                         {hasNoPastRecord(effectiveDate, today) && (
                           <span className={styles.unexperiencedBadge}>未経験</span>
+                        )}
+                        {status === 'notYetRecommended' && (
+                          <span className={styles.unexperiencedBadge}>
+                            非推奨({ingredient.minAgeMonths}ヶ月〜)
+                          </span>
+                        )}
+                        {status === 'forbidden' && (
+                          <span className={styles.forbiddenBadge}>
+                            禁止({ingredient.minAgeMonths}ヶ月〜)
+                          </span>
                         )}
                       </span>
                       <span className={styles.itemActions}>

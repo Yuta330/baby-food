@@ -1,18 +1,34 @@
 import { useState } from 'react';
 import type { FoodCategory, Ingredient, PlanEntry } from '../../types';
+import { getAgeInMonths } from '../../utils/date';
+import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
 import styles from './IngredientPicker.module.css';
 
 interface Props {
   category: FoodCategory;
   ingredients: Ingredient[];
+  date: string;
+  babyBirthday: string | undefined;
   initial?: PlanEntry;
   onSave: (ingredientId: string, grams: number) => void;
   onCancel: () => void;
 }
 
-export function IngredientPicker({ category, ingredients, initial, onSave, onCancel }: Props) {
+export function IngredientPicker({
+  category,
+  ingredients,
+  date,
+  babyBirthday,
+  initial,
+  onSave,
+  onCancel,
+}: Props) {
   const options = ingredients.filter((i) => i.category === category);
-  const [ingredientId, setIngredientId] = useState(initial?.ingredientId ?? options[0]?.id ?? '');
+  const ageMonths = getAgeInMonths(babyBirthday, date);
+  const optionStatus = new Map(options.map((i) => [i.id, getRecommendationStatus(i, ageMonths)]));
+  const firstSelectable =
+    options.find((i) => optionStatus.get(i.id) !== 'forbidden')?.id ?? options[0]?.id ?? '';
+  const [ingredientId, setIngredientId] = useState(initial?.ingredientId ?? firstSelectable);
   const [grams, setGrams] = useState(initial ? String(initial.grams) : '');
 
   if (options.length === 0) {
@@ -31,16 +47,29 @@ export function IngredientPicker({ category, ingredients, initial, onSave, onCan
   }
 
   const gramsValue = Number(grams);
-  const isValid = ingredientId !== '' && grams !== '' && gramsValue > 0;
+  const blockedSelection =
+    optionStatus.get(ingredientId) === 'forbidden' && ingredientId !== initial?.ingredientId;
+  const isValid = ingredientId !== '' && grams !== '' && gramsValue > 0 && !blockedSelection;
 
   return (
     <div className={styles.popover}>
       <select value={ingredientId} onChange={(e) => setIngredientId(e.target.value)}>
-        {options.map((i) => (
-          <option key={i.id} value={i.id}>
-            {i.name}
-          </option>
-        ))}
+        {options.map((i) => {
+          const status = optionStatus.get(i.id);
+          const disabled = status === 'forbidden' && i.id !== initial?.ingredientId;
+          const suffix =
+            status === 'forbidden'
+              ? ` (禁止・${i.minAgeMonths}ヶ月〜)`
+              : status === 'notYetRecommended'
+                ? ` (${i.minAgeMonths}ヶ月〜)`
+                : '';
+          return (
+            <option key={i.id} value={i.id} disabled={disabled}>
+              {i.name}
+              {suffix}
+            </option>
+          );
+        })}
       </select>
       <input
         type="number"

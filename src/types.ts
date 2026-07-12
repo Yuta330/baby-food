@@ -13,6 +13,8 @@ export interface Ingredient {
   name: string;
   category: FoodCategory;
   firstTriedDate?: string; // 'YYYY-MM-DD'、初めて食べた日(未設定可)
+  minAgeMonths?: number; // 推奨開始月齢。未設定なら月齢制限なし
+  prohibited?: boolean; // true: minAgeMonths未満は入力不可(禁止食材)。false/未設定は非推奨のみ(入力は可)
 }
 
 export interface PlanEntry {
@@ -40,7 +42,13 @@ export interface WeekPlan {
   days: DayPlan[]; // 常に7要素、月〜日
 }
 
+export interface AppSettings {
+  babyBirthday?: string; // 'YYYY-MM-DD'
+  presetRecommendationsSeeded?: boolean; // 内部マイグレーション用フラグ(UIには出さない)
+}
+
 export interface AppData {
   ingredients: Ingredient[];
   weekPlans: WeekPlan[];
+  settings: AppSettings;
 }

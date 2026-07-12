@@ -17,6 +17,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
   const dates = getWeekDates(weekStartDate);
   const today = toDateKey(new Date());
   const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
+  const babyBirthday = data.settings.babyBirthday;
   const previousWeekStartDate = addDays(weekStartDate, -7);
   const canCopyPreviousWeek = weekPlanHasAnyEntry(getWeekPlan(previousWeekStartDate));
 
@@ -39,6 +40,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
             weekPlan={weekPlan}
             ingredients={data.ingredients}
             effectiveDates={effectiveDates}
+            babyBirthday={babyBirthday}
           />
         ))}
       </div>
