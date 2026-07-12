@@ -53,7 +53,7 @@ export function IngredientList({
                           </span>
                         )}
                         {hasNoPastRecord(effectiveDate, today) && (
-                          <span className={styles.unexperiencedBadge}>未経験</span>
+                          <span className={styles.unexperiencedBadge}>まだ</span>
                         )}
                         {status === 'notYetRecommended' && (
                           <span className={styles.notYetRecommendedBadge}>
