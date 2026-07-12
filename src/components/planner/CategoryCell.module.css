@@ -1,0 +1,49 @@
+.cell {
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  padding: 6px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.red {
+  border-left-color: var(--color-red);
+  background: var(--color-red-bg);
+}
+
+.yellow {
+  border-left-color: var(--color-yellow);
+  background: var(--color-yellow-bg);
+}
+
+.green {
+  border-left-color: var(--color-green);
+  background: var(--color-green-bg);
+}
+
+.empty {
+  opacity: 0.35;
+  min-height: 32px;
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.addWrap {
+  position: relative;
+}
+
+.addButton {
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: transparent;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}

@@ -1,0 +1,41 @@
+.popover {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 10;
+  width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.popover select,
+.popover input {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.actions button {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}

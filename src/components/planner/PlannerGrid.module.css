@@ -1,0 +1,62 @@
+.page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  gap: 4px;
+}
+
+.headerCell {
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 4px;
+}
+
+.date {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.rowLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.mealSectionLabel {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  padding-left: 4px;
+}
+
+.mealHeaderCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  min-height: 24px;
+}
+
+.addMealButton,
+.removeMealButton {
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: transparent;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.removeMealButton {
+  border-color: var(--color-red);
+  color: var(--color-red);
+}

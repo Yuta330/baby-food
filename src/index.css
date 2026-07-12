@@ -1,0 +1,48 @@
+:root {
+  --color-red: #e57373;
+  --color-red-bg: #fdecea;
+  --color-yellow: #f0b429;
+  --color-yellow-bg: #fef6e0;
+  --color-green: #66bb6a;
+  --color-green-bg: #eaf6ea;
+
+  --text: #2b2b2b;
+  --text-muted: #6b6b6b;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #dfdfdf;
+  --accent: #4a90a4;
+
+  font: 16px/1.5 system-ui, 'Hiragino Sans', 'Yu Gothic', 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5em;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font: inherit;
+}
