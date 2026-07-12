@@ -8,10 +8,13 @@
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface);
-  padding: 6px 12px;
+  padding: 6px;
   color: var(--text);
   font-size: 0.85rem;
   white-space: nowrap;
@@ -29,7 +32,7 @@
   }
 
   .button {
-    padding: 5px 10px;
+    padding: 5px;
     font-size: 0.8rem;
   }
 }
