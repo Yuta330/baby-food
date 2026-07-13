@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FoodCategory, Ingredient, PlanEntry } from '../../types';
 import { getAgeInMonths } from '../../utils/date';
 import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
+import { GramsStepper } from '../common/GramsStepper';
 import styles from './IngredientPicker.module.css';
 
 interface Props {
@@ -30,7 +31,7 @@ export function IngredientPicker({
     const selectable = options.find((i) => optionStatus.get(i.id) !== 'forbidden');
     return initial?.ingredientId ?? selectable?.id ?? options[0]?.id ?? '';
   });
-  const [grams, setGrams] = useState(initial ? String(initial.grams) : '');
+  const [grams, setGrams] = useState<number | undefined>(initial?.grams);
 
   if (options.length === 0) {
     return (
@@ -47,10 +48,13 @@ export function IngredientPicker({
     );
   }
 
-  const gramsValue = Number(grams);
+  const selectedIngredient = options.find((i) => i.id === ingredientId);
   const blockedSelection =
     optionStatus.get(ingredientId) === 'forbidden' && ingredientId !== initial?.ingredientId;
-  const isValid = ingredientId !== '' && grams !== '' && gramsValue > 0 && !blockedSelection;
+  const hasUsableAmount =
+    grams !== undefined ? grams > 0 : selectedIngredient?.defaultGrams !== undefined;
+  const isValid = ingredientId !== '' && hasUsableAmount && !blockedSelection;
+  const resolvedGrams = grams ?? selectedIngredient?.defaultGrams ?? 0;
 
   return (
     <div className={styles.popover}>
@@ -72,12 +76,14 @@ export function IngredientPicker({
           );
         })}
       </select>
-      <input
-        type="number"
-        min={0}
-        placeholder="グラム数"
+      <GramsStepper
         value={grams}
-        onChange={(e) => setGrams(e.target.value)}
+        onChange={setGrams}
+        placeholder={
+          selectedIngredient?.defaultGrams !== undefined
+            ? `既定 ${selectedIngredient.defaultGrams}g`
+            : 'グラム数'
+        }
       />
       <div className={styles.actions}>
         <button type="button" onClick={onCancel}>
@@ -86,7 +92,7 @@ export function IngredientPicker({
         <button
           type="button"
           disabled={!isValid}
-          onClick={() => onSave(ingredientId, gramsValue)}
+          onClick={() => onSave(ingredientId, resolvedGrams)}
         >
           保存
         </button>

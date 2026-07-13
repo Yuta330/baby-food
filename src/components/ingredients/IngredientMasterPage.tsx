@@ -32,7 +32,14 @@ export function IngredientMasterPage() {
     <div className={styles.page}>
       {adding && (
         <IngredientForm
-          onSave={(name, category: FoodCategory, firstTriedDate, minAgeMonths, prohibited) => {
+          onSave={(
+            name,
+            category: FoodCategory,
+            firstTriedDate,
+            minAgeMonths,
+            prohibited,
+            defaultGrams,
+          ) => {
             addIngredient({
               id: createId(),
               name,
@@ -40,6 +47,7 @@ export function IngredientMasterPage() {
               firstTriedDate,
               minAgeMonths,
               prohibited,
+              defaultGrams,
             });
             setAdding(false);
           }}
@@ -51,7 +59,7 @@ export function IngredientMasterPage() {
         <IngredientForm
           key={editing.id}
           initial={editing}
-          onSave={(name, category, firstTriedDate, minAgeMonths, prohibited) => {
+          onSave={(name, category, firstTriedDate, minAgeMonths, prohibited, defaultGrams) => {
             updateIngredient({
               id: editing.id,
               name,
@@ -59,6 +67,7 @@ export function IngredientMasterPage() {
               firstTriedDate,
               minAgeMonths,
               prohibited,
+              defaultGrams,
             });
             setEditing(null);
           }}
