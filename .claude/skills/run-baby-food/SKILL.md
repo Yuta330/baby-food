@@ -88,6 +88,7 @@ Driver commands:
 | `click <selector>` | click; selector may contain spaces (descendant/`:has()` combinators) |
 | `click-file-chooser <selector> <path>` | click a button that opens a native file picker, feed it `<path>` (for the backup "アップロード" button) |
 | `fill <selector> <value...>` | fill an input; selector is the first token (no spaces), value is everything after |
+| `select <selector> <label...>` | choose a `<select>` option by its visible label text (Playwright `.fill()` doesn't work on `<select>` elements) |
 | `text <selector>` | print `innerText` of the first match |
 | `options <selector>` | print `innerText` of all matches as a JSON array (e.g. `select option`) |
 | `attr <selector...> <name>` | print an attribute's value (`null` if absent, `""` if present with no value — e.g. a `disabled` boolean attribute); last token is the attribute name, everything before it is the selector |
@@ -141,6 +142,12 @@ No test suite is configured in this repo (`CLAUDE.md` confirms this explicitly).
   but not across separate `node driver.mjs` invocations against a fresh browser context — use
   `set-local-storage` at the start of a session to seed state (e.g. simulating a pre-migration
   `babyFoodApp.v2` payload) rather than assuming prior runs left anything behind.
+- **CSS Modules class names are hashed, so `.popover`/`.stepper`/etc. selectors from the source
+  `.module.css` files never match in the rendered DOM.** Use text/role-based selectors
+  (`button:has-text("保存")`, `label:has-text("既定のグラム数") button >> nth=0`) instead of
+  guessing at a component's CSS Modules class name.
+- **`fill` on a `<select>` throws "Element is not an `<input>`..."** — use the `select` command
+  (added for this reason) instead, which calls Playwright's `selectOption({ label })`.
 
 ## Troubleshooting
 
