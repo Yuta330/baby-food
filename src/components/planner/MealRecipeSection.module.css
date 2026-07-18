@@ -44,7 +44,7 @@
 }
 
 .rescaleForm input {
-  width: 48px;
+  width: 60px;
   padding: 2px 4px;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -99,7 +99,8 @@
   font-size: 0.85rem;
 }
 
-.empty {
+.empty,
+.hint {
   font-size: 0.8rem;
   color: var(--text-muted);
   margin: 0;

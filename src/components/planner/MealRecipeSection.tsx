@@ -52,9 +52,9 @@ export function MealRecipeSection({
   const { addEntries, deleteRecipeGroup, rescaleRecipeGroup } = useAppData();
   const [adding, setAdding] = useState(false);
   const [recipeId, setRecipeId] = useState('');
-  const [multiplier, setMultiplier] = useState('1');
+  const [targetGrams, setTargetGrams] = useState('');
   const [rescalingGroupId, setRescalingGroupId] = useState<string | null>(null);
-  const [rescaleMultiplier, setRescaleMultiplier] = useState('1');
+  const [rescaleGrams, setRescaleGrams] = useState('');
 
   const groups = collectGroups(meal?.entries ?? []);
   const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
@@ -68,17 +68,19 @@ export function MealRecipeSection({
     const ingredient = ingredientMap.get(item.ingredientId);
     return ingredient && getRecommendationStatus(ingredient, ageMonths) === 'forbidden';
   });
-  const multiplierValue = Number(multiplier);
+  const defaultTotalGrams = availableItems.reduce((sum, item) => sum + item.grams, 0);
+  const effectiveGrams = targetGrams.trim() === '' ? defaultTotalGrams : Number(targetGrams);
+  const multiplierValue = defaultTotalGrams > 0 ? effectiveGrams / defaultTotalGrams : 0;
   const canAdd =
     selectedRecipe !== undefined &&
     availableItems.length > 0 &&
-    multiplierValue > 0 &&
+    effectiveGrams > 0 &&
     forbiddenItems.length === 0;
 
   const resetAddForm = () => {
     setAdding(false);
     setRecipeId('');
-    setMultiplier('1');
+    setTargetGrams('');
   };
 
   return (
@@ -96,25 +98,29 @@ export function MealRecipeSection({
                   <span className={styles.rescaleForm}>
                     <input
                       type="number"
-                      step={0.1}
-                      min={0.1}
-                      value={rescaleMultiplier}
-                      onChange={(e) => setRescaleMultiplier(e.target.value)}
+                      step={1}
+                      min={1}
+                      value={rescaleGrams}
+                      onChange={(e) => setRescaleGrams(e.target.value)}
                       autoFocus
                     />
                     <button
                       type="button"
+                      disabled={!(Number(rescaleGrams) > 0)}
                       onClick={() => {
-                        const value = Number(rescaleMultiplier);
-                        if (value > 0) {
-                          rescaleRecipeGroup(
-                            weekStartDate,
-                            date,
-                            mealIndex,
-                            group.recipeGroupId,
-                            value,
-                          );
-                        }
+                        const entered = Number(rescaleGrams);
+                        const baseTotal = group.entries.reduce(
+                          (sum, e) => sum + (e.baseGrams ?? e.grams),
+                          0,
+                        );
+                        const multiplier = baseTotal > 0 ? entered / baseTotal : 1;
+                        rescaleRecipeGroup(
+                          weekStartDate,
+                          date,
+                          mealIndex,
+                          group.recipeGroupId,
+                          multiplier,
+                        );
                         setRescalingGroupId(null);
                       }}
                     >
@@ -129,16 +135,12 @@ export function MealRecipeSection({
                     <button
                       type="button"
                       onClick={() => {
-                        const first = group.entries[0];
-                        const estimate =
-                          first?.baseGrams && first.baseGrams > 0
-                            ? Math.round((first.grams / first.baseGrams) * 100) / 100
-                            : 1;
-                        setRescaleMultiplier(String(estimate));
+                        const currentTotal = group.entries.reduce((sum, e) => sum + e.grams, 0);
+                        setRescaleGrams(String(currentTotal));
                         setRescalingGroupId(group.recipeGroupId);
                       }}
                     >
-                      倍率変更
+                      グラム数を変更
                     </button>
                     <button
                       type="button"
@@ -181,12 +183,21 @@ export function MealRecipeSection({
                 </select>
                 <input
                   type="number"
-                  step={0.1}
-                  min={0.1}
-                  placeholder="倍率"
-                  value={multiplier}
-                  onChange={(e) => setMultiplier(e.target.value)}
+                  step={1}
+                  min={1}
+                  placeholder={
+                    selectedRecipe && availableItems.length > 0
+                      ? `合計グラム数(既定 ${defaultTotalGrams}g)`
+                      : '合計グラム数'
+                  }
+                  value={targetGrams}
+                  onChange={(e) => setTargetGrams(e.target.value)}
                 />
+                {selectedRecipe && availableItems.length > 0 && (
+                  <p className={styles.hint}>
+                    未入力の場合は既定の{defaultTotalGrams}gで追加されます。
+                  </p>
+                )}
                 {selectedRecipe && availableItems.length === 0 && (
                   <p className={styles.empty}>構成食材がすべて削除されています。</p>
                 )}
