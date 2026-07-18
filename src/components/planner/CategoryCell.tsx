@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FoodCategory, Ingredient, PlanEntry } from '../../types';
+import type { FoodCategory, Ingredient, PlanEntry, Recipe } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
 import { isDateInWeek } from '../../utils/date';
@@ -14,6 +14,7 @@ interface Props {
   category: FoodCategory;
   entries: PlanEntry[];
   ingredients: Ingredient[];
+  recipes: Recipe[];
   effectiveDates: Map<string, string>;
   babyBirthday: string | undefined;
 }
@@ -31,6 +32,7 @@ export function CategoryCell({
   category,
   entries,
   ingredients,
+  recipes,
   effectiveDates,
   babyBirthday,
 }: Props) {
@@ -39,6 +41,7 @@ export function CategoryCell({
   const [adding, setAdding] = useState(false);
 
   const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
   const editingEntry = entries.find((e) => e.id === editingEntryId);
 
   return (
@@ -50,6 +53,11 @@ export function CategoryCell({
             entry={entry}
             ingredientName={ingredientMap.get(entry.ingredientId)?.name ?? '(削除された食材)'}
             isFirstThisWeek={isDateInWeek(effectiveDates.get(entry.ingredientId), weekStartDate)}
+            recipeName={
+              entry.recipeId
+                ? (recipeMap.get(entry.recipeId)?.name ?? '(削除された料理)')
+                : undefined
+            }
             onEdit={() => {
               setAdding(false);
               setEditingEntryId(entry.id);

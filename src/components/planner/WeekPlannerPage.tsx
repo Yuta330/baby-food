@@ -38,6 +38,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
             date={date}
             weekPlan={weekPlan}
             ingredients={data.ingredients}
+            recipes={data.recipes}
             effectiveDates={effectiveDates}
             babyBirthday={babyBirthday}
           />

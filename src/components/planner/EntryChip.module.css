@@ -1,6 +1,6 @@
 .chip {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -21,15 +21,20 @@
   margin-right: 2px;
 }
 
+.recipeTag {
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 2px;
+}
+
 .label {
   border: none;
   background: none;
   padding: 0;
   color: var(--text);
   text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .remove {
