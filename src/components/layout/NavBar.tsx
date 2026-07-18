@@ -5,6 +5,7 @@ import { BackupControls } from './BackupControls';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'planner', label: '週間プランナー' },
   { key: 'ingredients', label: '食材マスタ' },
+  { key: 'recipes', label: '料理マスタ' },
   { key: 'summary', label: '週間サマリー' },
 ];
 
