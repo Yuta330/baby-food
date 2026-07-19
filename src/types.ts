@@ -61,8 +61,14 @@ export interface WeekPlan {
   days: DayPlan[]; // 常に7要素、月〜日
 }
 
+export interface MealCountSchedule {
+  secondMealStartDate?: string; // 'YYYY-MM-DD'。この日以降は2食目が既定で有効
+  thirdMealStartDate?: string; // 'YYYY-MM-DD'。この日以降は3食目が既定で有効
+}
+
 export interface AppSettings {
   babyBirthday?: string; // 'YYYY-MM-DD'
+  mealCountSchedule?: MealCountSchedule;
   presetRecommendationsSeeded?: boolean; // 内部マイグレーション用フラグ(UIには出さない)
   kayuRecipeMigrated?: boolean; // 「米(10倍がゆ)」→食材「米」+料理「10倍がゆ」移行済みフラグ(UIには出さない)
 }
