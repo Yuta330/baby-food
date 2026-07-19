@@ -17,17 +17,8 @@
 }
 
 .popover {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px;
-  position: absolute;
-  z-index: 10;
+  composes: popoverBox from './Popover.module.css';
   width: 220px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .list {
@@ -67,14 +58,5 @@
 }
 
 .actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.actions button {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg);
-  padding: 4px 8px;
-  font-size: 0.85rem;
+  composes: actionsRow from './Popover.module.css';
 }

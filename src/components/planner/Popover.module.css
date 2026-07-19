@@ -1,0 +1,26 @@
+.popoverBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.actionsRow button {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
