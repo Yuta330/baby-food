@@ -289,29 +289,26 @@ function seedNewPresetsAndBackfill(data: AppData): AppData {
   };
 }
 
-const PRESET_RECIPE_MAP = new Map(presetRecipes.map((r) => [r.id, r]));
-// この機能で新規追加したプリセットのみ対象(過去に削除された他のプリセットは復活させない)。
-const NEW_PRESET_RECIPE_IDS = ['preset-recipe-kayu'];
-
-function seedNewPresetRecipes(recipes: Recipe[]): Recipe[] {
-  const existingIds = new Set(recipes.map((r) => r.id));
-  const missing = NEW_PRESET_RECIPE_IDS.filter((id) => !existingIds.has(id)).map(
-    (id) => PRESET_RECIPE_MAP.get(id)!,
-  );
-  return missing.length > 0 ? [...recipes, ...missing] : recipes;
-}
-
 // 「米(10倍がゆ)」食材を「米」食材+「10倍がゆ」料理に置き換える1回限りの移行。
 // 食材名の強制上書きを含む破壊的変更のため、presetRecommendationsSeededとは独立した
 // フラグ(kayuRecipeMigrated)で1回のみ実行する。
+// このマイグレーションはkayuRecipeMigratedフラグにより1ユーザーにつき1回しか実行されないため、
+// 「過去に削除されたプリセット料理を復活させない」ための許可リストは不要
+// (実行時点でpreset-recipe-kayuをユーザーが削除している余地がそもそもない)。
+// 参照先の食材が削除済みの場合は壊れた料理を残さないよう追加しない。
 function migrateKayuToRecipe(data: AppData): AppData {
   if (data.settings.kayuRecipeMigrated) return data;
+  const ingredientIds = new Set(data.ingredients.map((i) => i.id));
+  const existingRecipeIds = new Set(data.recipes.map((r) => r.id));
+  const newRecipes = presetRecipes.filter(
+    (r) => !existingRecipeIds.has(r.id) && r.items.every((item) => ingredientIds.has(item.ingredientId)),
+  );
   return {
     ...data,
     ingredients: data.ingredients.map((ing) =>
       ing.id === 'preset-kayu' ? { ...ing, name: '米' } : ing,
     ),
-    recipes: seedNewPresetRecipes(data.recipes),
+    recipes: newRecipes.length > 0 ? [...data.recipes, ...newRecipes] : data.recipes,
     settings: { ...data.settings, kayuRecipeMigrated: true },
   };
 }
