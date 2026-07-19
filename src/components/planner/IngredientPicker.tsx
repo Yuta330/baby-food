@@ -51,10 +51,8 @@ export function IngredientPicker({
   const selectedIngredient = options.find((i) => i.id === ingredientId);
   const blockedSelection =
     optionStatus.get(ingredientId) === 'forbidden' && ingredientId !== initial?.ingredientId;
-  const hasUsableAmount =
-    grams !== undefined ? grams > 0 : selectedIngredient?.defaultGrams !== undefined;
-  const isValid = ingredientId !== '' && hasUsableAmount && !blockedSelection;
   const resolvedGrams = grams ?? selectedIngredient?.defaultGrams ?? 0;
+  const isValid = ingredientId !== '' && resolvedGrams > 0 && !blockedSelection;
 
   return (
     <div className={styles.popover}>

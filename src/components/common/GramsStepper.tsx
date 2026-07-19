@@ -19,13 +19,23 @@ export function GramsStepper({ value, onChange, placeholder = 'グラム数' }: 
 
   return (
     <div className={styles.stepper}>
-      <button type="button" onClick={handleDecrement} disabled={value === undefined} aria-label="減らす">
+      <button
+        type="button"
+        onClick={handleDecrement}
+        disabled={value === undefined || value <= MIN_GRAMS}
+        aria-label="減らす"
+      >
         −
       </button>
       <span className={value === undefined ? styles.placeholder : styles.value}>
         {value !== undefined ? `${value}g` : placeholder}
       </span>
-      <button type="button" onClick={handleIncrement} disabled={value === MAX_GRAMS} aria-label="増やす">
+      <button
+        type="button"
+        onClick={handleIncrement}
+        disabled={value !== undefined && value >= MAX_GRAMS}
+        aria-label="増やす"
+      >
         ＋
       </button>
       {value !== undefined && (
