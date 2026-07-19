@@ -24,11 +24,6 @@
   background: var(--color-green-bg);
 }
 
-.empty {
-  opacity: 0.35;
-  min-height: 32px;
-}
-
 .chips {
   display: flex;
   flex-direction: column;

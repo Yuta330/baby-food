@@ -1,6 +1,14 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
-import type { AppData, DayPlan, Ingredient, Meal, PlanEntry, Recipe, WeekPlan } from '../types';
-import { MAX_MEALS_PER_DAY } from '../types';
+import type {
+  AppData,
+  DayPlan,
+  Ingredient,
+  Meal,
+  MealCountSchedule,
+  PlanEntry,
+  Recipe,
+  WeekPlan,
+} from '../types';
 import { presetIngredients } from '../data/presetIngredients';
 import { presetRecipes } from '../data/presetRecipes';
 import { getWeekDates } from '../utils/date';
@@ -18,10 +26,9 @@ type Action =
   | { type: 'ADD_ENTRIES'; weekStartDate: string; date: string; mealIndex: number; entries: PlanEntry[] }
   | { type: 'UPDATE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entry: PlanEntry }
   | { type: 'DELETE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entryId: string }
-  | { type: 'ADD_MEAL'; weekStartDate: string; date: string }
-  | { type: 'REMOVE_LAST_MEAL'; weekStartDate: string; date: string }
   | { type: 'COPY_WEEK'; sourceWeekStartDate: string; targetWeekStartDate: string }
   | { type: 'SET_BABY_BIRTHDAY'; babyBirthday: string | undefined }
+  | { type: 'SET_MEAL_COUNT_SCHEDULE'; schedule: MealCountSchedule }
   | { type: 'ADD_RECIPE'; recipe: Recipe }
   | { type: 'UPDATE_RECIPE'; recipe: Recipe }
   | { type: 'DELETE_RECIPE'; id: string }
@@ -61,9 +68,13 @@ function updateDay(weekPlan: WeekPlan, date: string, update: (day: DayPlan) => D
 }
 
 function updateMealAt(day: DayPlan, mealIndex: number, update: (meal: Meal) => Meal): DayPlan {
+  const meals =
+    day.meals.length > mealIndex
+      ? day.meals
+      : [...day.meals, ...Array.from({ length: mealIndex + 1 - day.meals.length }, createEmptyMeal)];
   return {
     ...day,
-    meals: day.meals.map((meal, i) => (i === mealIndex ? update(meal) : meal)),
+    meals: meals.map((meal, i) => (i === mealIndex ? update(meal) : meal)),
   };
 }
 
@@ -144,26 +155,6 @@ function appDataReducer(state: AppData, action: Action): AppData {
           ),
         ),
       };
-    case 'ADD_MEAL':
-      return {
-        ...state,
-        weekPlans: withWeekPlan(state.weekPlans, action.weekStartDate, (weekPlan) =>
-          updateDay(weekPlan, action.date, (day) =>
-            day.meals.length >= MAX_MEALS_PER_DAY
-              ? day
-              : { ...day, meals: [...day.meals, createEmptyMeal()] },
-          ),
-        ),
-      };
-    case 'REMOVE_LAST_MEAL':
-      return {
-        ...state,
-        weekPlans: withWeekPlan(state.weekPlans, action.weekStartDate, (weekPlan) =>
-          updateDay(weekPlan, action.date, (day) =>
-            day.meals.length <= 1 ? day : { ...day, meals: day.meals.slice(0, -1) },
-          ),
-        ),
-      };
     case 'COPY_WEEK': {
       const source = state.weekPlans.find((w) => w.weekStartDate === action.sourceWeekStartDate);
       if (!source) return state;
@@ -176,6 +167,8 @@ function appDataReducer(state: AppData, action: Action): AppData {
     }
     case 'SET_BABY_BIRTHDAY':
       return { ...state, settings: { ...state.settings, babyBirthday: action.babyBirthday } };
+    case 'SET_MEAL_COUNT_SCHEDULE':
+      return { ...state, settings: { ...state.settings, mealCountSchedule: action.schedule } };
     case 'ADD_RECIPE':
       return { ...state, recipes: [...state.recipes, action.recipe] };
     case 'UPDATE_RECIPE':
@@ -359,10 +352,9 @@ interface AppDataContextValue {
   addEntries: (weekStartDate: string, date: string, mealIndex: number, entries: PlanEntry[]) => void;
   updateEntry: (weekStartDate: string, date: string, mealIndex: number, entry: PlanEntry) => void;
   deleteEntry: (weekStartDate: string, date: string, mealIndex: number, entryId: string) => void;
-  addMeal: (weekStartDate: string, date: string) => void;
-  removeLastMeal: (weekStartDate: string, date: string) => void;
   copyWeek: (sourceWeekStartDate: string, targetWeekStartDate: string) => void;
   setBabyBirthday: (babyBirthday: string | undefined) => void;
+  setMealCountSchedule: (schedule: MealCountSchedule) => void;
   addRecipe: (recipe: Recipe) => void;
   updateRecipe: (recipe: Recipe) => void;
   deleteRecipe: (id: string) => void;
@@ -405,12 +397,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'UPDATE_ENTRY', weekStartDate, date, mealIndex, entry }),
     deleteEntry: (weekStartDate, date, mealIndex, entryId) =>
       dispatch({ type: 'DELETE_ENTRY', weekStartDate, date, mealIndex, entryId }),
-    addMeal: (weekStartDate, date) => dispatch({ type: 'ADD_MEAL', weekStartDate, date }),
-    removeLastMeal: (weekStartDate, date) =>
-      dispatch({ type: 'REMOVE_LAST_MEAL', weekStartDate, date }),
     copyWeek: (sourceWeekStartDate, targetWeekStartDate) =>
       dispatch({ type: 'COPY_WEEK', sourceWeekStartDate, targetWeekStartDate }),
     setBabyBirthday: (babyBirthday) => dispatch({ type: 'SET_BABY_BIRTHDAY', babyBirthday }),
+    setMealCountSchedule: (schedule) => dispatch({ type: 'SET_MEAL_COUNT_SCHEDULE', schedule }),
     addRecipe: (recipe) => dispatch({ type: 'ADD_RECIPE', recipe }),
     updateRecipe: (recipe) => dispatch({ type: 'UPDATE_RECIPE', recipe }),
     deleteRecipe: (id) => dispatch({ type: 'DELETE_RECIPE', id }),

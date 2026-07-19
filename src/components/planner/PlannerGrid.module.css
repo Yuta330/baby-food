@@ -82,18 +82,3 @@
   flex: 1;
   min-width: 0;
 }
-
-.addMealButton,
-.removeMealButton {
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  background: transparent;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.removeMealButton {
-  border-color: var(--color-red);
-  color: var(--color-red);
-}
