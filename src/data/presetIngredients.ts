@@ -15,7 +15,7 @@ export const presetIngredients: Ingredient[] = [
   { id: 'preset-yogurt', name: 'ヨーグルト', category: '赤', minAgeMonths: 7 },
 
   // 黄 = 炭水化物・エネルギー源
-  { id: 'preset-kayu', name: '米(10倍がゆ)', category: '黄', minAgeMonths: 5 },
+  { id: 'preset-kayu', name: '米', category: '黄', minAgeMonths: 5 },
   { id: 'preset-pan', name: '食パン', category: '黄', minAgeMonths: 5 },
   { id: 'preset-udon', name: 'うどん', category: '黄', minAgeMonths: 5 },
   { id: 'preset-somen', name: 'そうめん', category: '黄', minAgeMonths: 6 },

@@ -59,6 +59,7 @@ export interface WeekPlan {
 export interface AppSettings {
   babyBirthday?: string; // 'YYYY-MM-DD'
   presetRecommendationsSeeded?: boolean; // 内部マイグレーション用フラグ(UIには出さない)
+  kayuRecipeMigrated?: boolean; // 「米(10倍がゆ)」→食材「米」+料理「10倍がゆ」移行済みフラグ(UIには出さない)
 }
 
 export interface AppData {
