@@ -47,7 +47,7 @@ export function SettingsPage() {
         2食目・3食目の開始日を設定すると、その日以降は自動的に該当する食事数が表示されます。
       </p>
       {scheduleInvalid && (
-        <p className={styles.hint}>
+        <p className={styles.warning}>
           3食目の開始日は2食目の開始日以降の日付にしてください。
         </p>
       )}
