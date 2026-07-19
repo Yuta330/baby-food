@@ -15,6 +15,7 @@ export interface Ingredient {
   firstTriedDate?: string; // 'YYYY-MM-DD'、初めて食べた日(未設定可)
   minAgeMonths?: number; // 推奨開始月齢。未設定なら月齢制限なし
   prohibited?: boolean; // true: minAgeMonths未満は入力不可(禁止食材)。false/未設定は非推奨のみ(入力は可)
+  defaultGrams?: number; // 入力画面の既定グラム数(未設定なら規定値なし)
 }
 
 export interface PlanEntry {
@@ -45,6 +46,10 @@ export interface Meal {
 export const MAX_MEALS_PER_DAY = 3;
 
 export const MEAL_LABELS: string[] = ['1食目', '2食目', '3食目'];
+
+export const GRAM_STEP = 5;
+export const MIN_GRAMS = 0;
+export const MAX_GRAMS = 200;
 
 export interface DayPlan {
   date: string; // 'YYYY-MM-DD'

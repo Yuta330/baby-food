@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FoodCategory, Ingredient } from '../../types';
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABEL } from '../../types';
+import { GramsStepper } from '../common/GramsStepper';
 import styles from './IngredientForm.module.css';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
     firstTriedDate?: string,
     minAgeMonths?: number,
     prohibited?: boolean,
+    defaultGrams?: number,
   ) => void;
   onCancel: () => void;
 }
@@ -21,6 +23,7 @@ export function IngredientForm({ initial, onSave, onCancel }: Props) {
   const [firstTriedDate, setFirstTriedDate] = useState(initial?.firstTriedDate ?? '');
   const [minAgeMonths, setMinAgeMonths] = useState(initial?.minAgeMonths?.toString() ?? '');
   const [prohibited, setProhibited] = useState(initial?.prohibited ?? false);
+  const [defaultGrams, setDefaultGrams] = useState<number | undefined>(initial?.defaultGrams);
 
   const isValid = name.trim().length > 0;
 
@@ -36,6 +39,7 @@ export function IngredientForm({ initial, onSave, onCancel }: Props) {
             firstTriedDate || undefined,
             minAgeMonths ? Number(minAgeMonths) : undefined,
             minAgeMonths ? prohibited : false,
+            defaultGrams,
           );
         }
       }}
@@ -76,6 +80,10 @@ export function IngredientForm({ initial, onSave, onCancel }: Props) {
           }}
         />
         ヶ月〜
+      </label>
+      <label className={styles.numberField}>
+        既定のグラム数
+        <GramsStepper value={defaultGrams} onChange={setDefaultGrams} placeholder="未設定" />
       </label>
       <label className={styles.checkboxField}>
         <input
