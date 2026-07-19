@@ -21,9 +21,9 @@ export function EntryChip({
   return (
     <span className={isFirstThisWeek ? `${styles.chip} ${styles.first}` : styles.chip}>
       <button type="button" className={styles.label} onClick={onEdit}>
-        {isFirstThisWeek && <span className={styles.badge}>はじめて</span>}
         {recipeName && <span className={styles.recipeTag}>{recipeName}</span>}
-        {ingredientName} {entry.grams}g
+        <span className={isFirstThisWeek ? styles.firstName : undefined}>{ingredientName}</span>{' '}
+        {entry.grams}g
       </button>
       <button type="button" className={styles.remove} onClick={onDelete} aria-label="削除">
         ×

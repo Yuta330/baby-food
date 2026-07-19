@@ -15,10 +15,8 @@
   border-color: var(--highlight-border);
 }
 
-.badge {
-  color: var(--highlight-text);
+.firstName {
   font-weight: 700;
-  margin-right: 2px;
 }
 
 .recipeTag {

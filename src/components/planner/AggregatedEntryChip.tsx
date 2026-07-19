@@ -31,8 +31,10 @@ export function AggregatedEntryChip({
     <span className={styles.wrap}>
       <span className={isFirstThisWeek ? `${chipStyles.chip} ${chipStyles.first}` : chipStyles.chip}>
         <span className={chipStyles.label}>
-          {isFirstThisWeek && <span className={chipStyles.badge}>はじめて</span>}
-          {ingredientName} {totalGrams}g
+          <span className={isFirstThisWeek ? chipStyles.firstName : undefined}>
+            {ingredientName}
+          </span>{' '}
+          {totalGrams}g
         </span>
         <button
           type="button"
