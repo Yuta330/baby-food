@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy work-branch preview to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches-ignore: [main, gh-pages]
   workflow_dispatch:
 
 permissions:
@@ -23,8 +23,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_BASE: /baby-food/dev/
+          VITE_STORAGE_KEY_SUFFIX: .dev
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
+          destination_dir: dev
           keep_files: true

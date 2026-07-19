@@ -7,7 +7,7 @@ import { getWeekDates } from '../utils/date';
 import { createId } from '../utils/id';
 import { fillEmptyDaysFromWeek } from '../utils/copyWeek';
 
-const STORAGE_KEY = 'babyFoodApp.v2';
+const STORAGE_KEY = `babyFoodApp.v2${import.meta.env.VITE_STORAGE_KEY_SUFFIX ?? ''}`;
 const LEGACY_STORAGE_KEY = 'babyFoodApp.v1';
 
 type Action =
