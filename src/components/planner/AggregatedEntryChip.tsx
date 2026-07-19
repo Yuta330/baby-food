@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PlanEntry } from '../../types';
+import { IngredientNameLabel } from './IngredientNameLabel';
 import chipStyles from './EntryChip.module.css';
 import styles from './AggregatedEntryChip.module.css';
 
@@ -31,9 +32,7 @@ export function AggregatedEntryChip({
     <span className={styles.wrap}>
       <span className={isFirstThisWeek ? `${chipStyles.chip} ${chipStyles.first}` : chipStyles.chip}>
         <span className={chipStyles.label}>
-          <span className={isFirstThisWeek ? chipStyles.firstName : undefined}>
-            {ingredientName}
-          </span>{' '}
+          <IngredientNameLabel name={ingredientName} isFirstThisWeek={isFirstThisWeek} />{' '}
           {totalGrams}g
         </span>
         <button

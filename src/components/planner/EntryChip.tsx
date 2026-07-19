@@ -1,4 +1,5 @@
 import type { PlanEntry } from '../../types';
+import { IngredientNameLabel } from './IngredientNameLabel';
 import styles from './EntryChip.module.css';
 
 interface Props {
@@ -22,7 +23,7 @@ export function EntryChip({
     <span className={isFirstThisWeek ? `${styles.chip} ${styles.first}` : styles.chip}>
       <button type="button" className={styles.label} onClick={onEdit}>
         {recipeName && <span className={styles.recipeTag}>{recipeName}</span>}
-        <span className={isFirstThisWeek ? styles.firstName : undefined}>{ingredientName}</span>{' '}
+        <IngredientNameLabel name={ingredientName} isFirstThisWeek={isFirstThisWeek} />{' '}
         {entry.grams}g
       </button>
       <button type="button" className={styles.remove} onClick={onDelete} aria-label="削除">

@@ -34,6 +34,7 @@ export function SummaryTable({ rows }: Props) {
                 >
                   <span className={styles.name}>
                     <span className={row.isFirstThisWeek ? styles.firstName : undefined}>
+                      {row.isFirstThisWeek && <span className={styles.srOnly}>はじめて </span>}
                       {row.name}
                     </span>
                   </span>
