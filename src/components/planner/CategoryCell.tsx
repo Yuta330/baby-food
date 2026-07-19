@@ -3,9 +3,15 @@ import type { FoodCategory, Ingredient, PlanEntry, Recipe } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
 import { isDateInWeek } from '../../utils/date';
+import { groupEntriesByIngredient } from '../../utils/entryAggregation';
 import { EntryChip } from './EntryChip';
+import { AggregatedEntryChip } from './AggregatedEntryChip';
 import { IngredientPicker } from './IngredientPicker';
 import styles from './CategoryCell.module.css';
+
+function resolveRecipeName(entry: PlanEntry, recipeMap: Map<string, Recipe>): string | undefined {
+  return entry.recipeId ? (recipeMap.get(entry.recipeId)?.name ?? '(削除された料理)') : undefined;
+}
 
 interface Props {
   weekStartDate: string;
@@ -47,24 +53,46 @@ export function CategoryCell({
   return (
     <div className={`${styles.cell} ${CATEGORY_CLASS[category]}`}>
       <div className={styles.chips}>
-        {entries.map((entry) => (
-          <EntryChip
-            key={entry.id}
-            entry={entry}
-            ingredientName={ingredientMap.get(entry.ingredientId)?.name ?? '(削除された食材)'}
-            isFirstThisWeek={isDateInWeek(effectiveDates.get(entry.ingredientId), weekStartDate)}
-            recipeName={
-              entry.recipeId
-                ? (recipeMap.get(entry.recipeId)?.name ?? '(削除された料理)')
-                : undefined
-            }
-            onEdit={() => {
-              setAdding(false);
-              setEditingEntryId(entry.id);
-            }}
-            onDelete={() => deleteEntry(weekStartDate, date, mealIndex, entry.id)}
-          />
-        ))}
+        {groupEntriesByIngredient(entries).map((group) => {
+          const ingredientName = ingredientMap.get(group.ingredientId)?.name ?? '(削除された食材)';
+          const isFirstThisWeek = isDateInWeek(effectiveDates.get(group.ingredientId), weekStartDate);
+
+          if (group.items.length === 1) {
+            const entry = group.items[0];
+            return (
+              <EntryChip
+                key={group.ingredientId}
+                entry={entry}
+                ingredientName={ingredientName}
+                isFirstThisWeek={isFirstThisWeek}
+                recipeName={resolveRecipeName(entry, recipeMap)}
+                onEdit={() => {
+                  setAdding(false);
+                  setEditingEntryId(entry.id);
+                }}
+                onDelete={() => deleteEntry(weekStartDate, date, mealIndex, entry.id)}
+              />
+            );
+          }
+
+          return (
+            <AggregatedEntryChip
+              key={group.ingredientId}
+              ingredientName={ingredientName}
+              totalGrams={group.totalGrams}
+              isFirstThisWeek={isFirstThisWeek}
+              items={group.items.map((entry) => ({
+                entry,
+                recipeName: resolveRecipeName(entry, recipeMap) ?? '手動追加',
+              }))}
+              onEditItem={(entryId) => {
+                setAdding(false);
+                setEditingEntryId(entryId);
+              }}
+              onDeleteItem={(entryId) => deleteEntry(weekStartDate, date, mealIndex, entryId)}
+            />
+          );
+        })}
       </div>
 
       <div className={styles.addWrap}>
