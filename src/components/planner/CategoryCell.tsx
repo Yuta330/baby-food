@@ -128,7 +128,12 @@ export function CategoryCell({
             babyBirthday={babyBirthday}
             initial={editingEntry}
             onSave={(ingredientId, grams) => {
-              updateEntry(weekStartDate, date, mealIndex, { id: editingEntry.id, ingredientId, grams });
+              updateEntry(weekStartDate, date, mealIndex, {
+                ...editingEntry,
+                ingredientId,
+                grams,
+                baseGrams: editingEntry.baseGrams === undefined ? undefined : grams,
+              });
               setEditingEntryId(null);
             }}
             onCancel={() => setEditingEntryId(null)}
