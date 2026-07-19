@@ -33,8 +33,10 @@ export function SummaryTable({ rows }: Props) {
                   className={row.isFirstThisWeek ? `${styles.item} ${styles.first}` : styles.item}
                 >
                   <span className={styles.name}>
-                    {row.isFirstThisWeek && <span className={styles.badge}>はじめて</span>}
-                    {row.name}
+                    <span className={row.isFirstThisWeek ? styles.firstName : undefined}>
+                      {row.isFirstThisWeek && <span className={styles.srOnly}>はじめて </span>}
+                      {row.name}
+                    </span>
                   </span>
                   <span className={styles.grams}>{row.grams}g</span>
                 </li>

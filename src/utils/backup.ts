@@ -31,7 +31,8 @@ export function parseBackupFile(raw: string): AppData {
   }
 
   const settings = data.settings && typeof data.settings === 'object' ? data.settings : {};
-  return { ...data, settings };
+  const recipes = Array.isArray(data.recipes) ? data.recipes : [];
+  return { ...data, settings, recipes };
 }
 
 export function buildBackupFilename(date: Date): string {

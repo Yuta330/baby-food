@@ -21,6 +21,20 @@ export interface PlanEntry {
   id: string;
   ingredientId: string;
   grams: number;
+  recipeId?: string; // 由来した料理マスタのid(マスタ削除後も保持。表示解決用)
+  recipeGroupId?: string; // 同じ「料理として追加」操作でまとめて追加されたエントリを束ねるid
+  baseGrams?: number; // 倍率再調整の基準となる、追加時点(倍率適用前)のグラム数スナップショット
+}
+
+export interface RecipeItem {
+  ingredientId: string;
+  grams: number;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  items: RecipeItem[];
 }
 
 export interface Meal {
@@ -45,10 +59,12 @@ export interface WeekPlan {
 export interface AppSettings {
   babyBirthday?: string; // 'YYYY-MM-DD'
   presetRecommendationsSeeded?: boolean; // 内部マイグレーション用フラグ(UIには出さない)
+  kayuRecipeMigrated?: boolean; // 「米(10倍がゆ)」→食材「米」+料理「10倍がゆ」移行済みフラグ(UIには出さない)
 }
 
 export interface AppData {
   ingredients: Ingredient[];
   weekPlans: WeekPlan[];
   settings: AppSettings;
+  recipes: Recipe[];
 }

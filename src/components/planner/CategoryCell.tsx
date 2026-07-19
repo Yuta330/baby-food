@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import type { FoodCategory, Ingredient, PlanEntry } from '../../types';
+import type { FoodCategory, Ingredient, PlanEntry, Recipe } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
 import { isDateInWeek } from '../../utils/date';
+import { groupEntriesByIngredient } from '../../utils/entryAggregation';
 import { EntryChip } from './EntryChip';
+import { AggregatedEntryChip } from './AggregatedEntryChip';
 import { IngredientPicker } from './IngredientPicker';
 import styles from './CategoryCell.module.css';
+
+function resolveRecipeName(entry: PlanEntry, recipeMap: Map<string, Recipe>): string | undefined {
+  return entry.recipeId ? (recipeMap.get(entry.recipeId)?.name ?? '(削除された料理)') : undefined;
+}
 
 interface Props {
   weekStartDate: string;
@@ -14,6 +20,7 @@ interface Props {
   category: FoodCategory;
   entries: PlanEntry[];
   ingredients: Ingredient[];
+  recipes: Recipe[];
   effectiveDates: Map<string, string>;
   babyBirthday: string | undefined;
 }
@@ -31,6 +38,7 @@ export function CategoryCell({
   category,
   entries,
   ingredients,
+  recipes,
   effectiveDates,
   babyBirthday,
 }: Props) {
@@ -39,24 +47,52 @@ export function CategoryCell({
   const [adding, setAdding] = useState(false);
 
   const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
   const editingEntry = entries.find((e) => e.id === editingEntryId);
 
   return (
     <div className={`${styles.cell} ${CATEGORY_CLASS[category]}`}>
       <div className={styles.chips}>
-        {entries.map((entry) => (
-          <EntryChip
-            key={entry.id}
-            entry={entry}
-            ingredientName={ingredientMap.get(entry.ingredientId)?.name ?? '(削除された食材)'}
-            isFirstThisWeek={isDateInWeek(effectiveDates.get(entry.ingredientId), weekStartDate)}
-            onEdit={() => {
-              setAdding(false);
-              setEditingEntryId(entry.id);
-            }}
-            onDelete={() => deleteEntry(weekStartDate, date, mealIndex, entry.id)}
-          />
-        ))}
+        {groupEntriesByIngredient(entries).map((group) => {
+          const ingredientName = ingredientMap.get(group.ingredientId)?.name ?? '(削除された食材)';
+          const isFirstThisWeek = isDateInWeek(effectiveDates.get(group.ingredientId), weekStartDate);
+
+          if (group.items.length === 1) {
+            const entry = group.items[0];
+            return (
+              <EntryChip
+                key={group.ingredientId}
+                entry={entry}
+                ingredientName={ingredientName}
+                isFirstThisWeek={isFirstThisWeek}
+                recipeName={resolveRecipeName(entry, recipeMap)}
+                onEdit={() => {
+                  setAdding(false);
+                  setEditingEntryId(entry.id);
+                }}
+                onDelete={() => deleteEntry(weekStartDate, date, mealIndex, entry.id)}
+              />
+            );
+          }
+
+          return (
+            <AggregatedEntryChip
+              key={group.ingredientId}
+              ingredientName={ingredientName}
+              totalGrams={group.totalGrams}
+              isFirstThisWeek={isFirstThisWeek}
+              items={group.items.map((entry) => ({
+                entry,
+                recipeName: resolveRecipeName(entry, recipeMap) ?? '手動追加',
+              }))}
+              onEditItem={(entryId) => {
+                setAdding(false);
+                setEditingEntryId(entryId);
+              }}
+              onDeleteItem={(entryId) => deleteEntry(weekStartDate, date, mealIndex, entryId)}
+            />
+          );
+        })}
       </div>
 
       <div className={styles.addWrap}>
@@ -92,7 +128,12 @@ export function CategoryCell({
             babyBirthday={babyBirthday}
             initial={editingEntry}
             onSave={(ingredientId, grams) => {
-              updateEntry(weekStartDate, date, mealIndex, { id: editingEntry.id, ingredientId, grams });
+              updateEntry(weekStartDate, date, mealIndex, {
+                ...editingEntry,
+                ingredientId,
+                grams,
+                baseGrams: editingEntry.baseGrams === undefined ? undefined : grams,
+              });
               setEditingEntryId(null);
             }}
             onCancel={() => setEditingEntryId(null)}

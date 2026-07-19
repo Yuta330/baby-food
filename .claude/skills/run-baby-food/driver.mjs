@@ -96,6 +96,13 @@ for await (const line of rl) {
         console.log('OK fill', sel, value);
         break;
       }
+      case 'select': {
+        const sel = rest[0];
+        const label = rest.slice(1).join(' ');
+        await page.selectOption(sel, { label });
+        console.log('OK select', sel, label);
+        break;
+      }
       case 'text': {
         const sel = rest.join(' ');
         const t = await page.locator(sel).first().innerText();

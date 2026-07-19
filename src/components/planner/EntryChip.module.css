@@ -1,6 +1,6 @@
 .chip {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -15,8 +15,22 @@
   border-color: var(--highlight-border);
 }
 
-.badge {
-  color: var(--highlight-text);
+.firstName {
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.recipeTag {
+  color: var(--accent);
   font-weight: 700;
   margin-right: 2px;
 }
@@ -27,9 +41,8 @@
   padding: 0;
   color: var(--text);
   text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .remove {

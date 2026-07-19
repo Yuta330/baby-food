@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
-import type { AppData, DayPlan, Ingredient, Meal, PlanEntry, WeekPlan } from '../types';
+import type { AppData, DayPlan, Ingredient, Meal, PlanEntry, Recipe, WeekPlan } from '../types';
 import { MAX_MEALS_PER_DAY } from '../types';
 import { presetIngredients } from '../data/presetIngredients';
+import { presetRecipes } from '../data/presetRecipes';
 import { getWeekDates } from '../utils/date';
 import { createId } from '../utils/id';
 import { fillEmptyDaysFromWeek } from '../utils/copyWeek';
@@ -14,12 +15,31 @@ type Action =
   | { type: 'UPDATE_INGREDIENT'; ingredient: Ingredient }
   | { type: 'DELETE_INGREDIENT'; id: string }
   | { type: 'ADD_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entry: PlanEntry }
+  | { type: 'ADD_ENTRIES'; weekStartDate: string; date: string; mealIndex: number; entries: PlanEntry[] }
   | { type: 'UPDATE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entry: PlanEntry }
   | { type: 'DELETE_ENTRY'; weekStartDate: string; date: string; mealIndex: number; entryId: string }
   | { type: 'ADD_MEAL'; weekStartDate: string; date: string }
   | { type: 'REMOVE_LAST_MEAL'; weekStartDate: string; date: string }
   | { type: 'COPY_WEEK'; sourceWeekStartDate: string; targetWeekStartDate: string }
   | { type: 'SET_BABY_BIRTHDAY'; babyBirthday: string | undefined }
+  | { type: 'ADD_RECIPE'; recipe: Recipe }
+  | { type: 'UPDATE_RECIPE'; recipe: Recipe }
+  | { type: 'DELETE_RECIPE'; id: string }
+  | {
+      type: 'DELETE_RECIPE_GROUP';
+      weekStartDate: string;
+      date: string;
+      mealIndex: number;
+      recipeGroupId: string;
+    }
+  | {
+      type: 'RESCALE_RECIPE_GROUP';
+      weekStartDate: string;
+      date: string;
+      mealIndex: number;
+      recipeGroupId: string;
+      multiplier: number;
+    }
   | { type: 'REPLACE_ALL'; data: AppData };
 
 function createEmptyMeal(): Meal {
@@ -88,6 +108,18 @@ function appDataReducer(state: AppData, action: Action): AppData {
           ),
         ),
       };
+    case 'ADD_ENTRIES':
+      return {
+        ...state,
+        weekPlans: withWeekPlan(state.weekPlans, action.weekStartDate, (weekPlan) =>
+          updateDay(weekPlan, action.date, (day) =>
+            updateMealAt(day, action.mealIndex, (meal) => ({
+              ...meal,
+              entries: [...meal.entries, ...action.entries],
+            })),
+          ),
+        ),
+      };
     case 'UPDATE_ENTRY':
       return {
         ...state,
@@ -144,8 +176,45 @@ function appDataReducer(state: AppData, action: Action): AppData {
     }
     case 'SET_BABY_BIRTHDAY':
       return { ...state, settings: { ...state.settings, babyBirthday: action.babyBirthday } };
+    case 'ADD_RECIPE':
+      return { ...state, recipes: [...state.recipes, action.recipe] };
+    case 'UPDATE_RECIPE':
+      return {
+        ...state,
+        recipes: state.recipes.map((r) => (r.id === action.recipe.id ? action.recipe : r)),
+      };
+    case 'DELETE_RECIPE':
+      return { ...state, recipes: state.recipes.filter((r) => r.id !== action.id) };
+    case 'DELETE_RECIPE_GROUP':
+      return {
+        ...state,
+        weekPlans: withWeekPlan(state.weekPlans, action.weekStartDate, (weekPlan) =>
+          updateDay(weekPlan, action.date, (day) =>
+            updateMealAt(day, action.mealIndex, (meal) => ({
+              ...meal,
+              entries: meal.entries.filter((e) => e.recipeGroupId !== action.recipeGroupId),
+            })),
+          ),
+        ),
+      };
+    case 'RESCALE_RECIPE_GROUP':
+      return {
+        ...state,
+        weekPlans: withWeekPlan(state.weekPlans, action.weekStartDate, (weekPlan) =>
+          updateDay(weekPlan, action.date, (day) =>
+            updateMealAt(day, action.mealIndex, (meal) => ({
+              ...meal,
+              entries: meal.entries.map((e) =>
+                e.recipeGroupId === action.recipeGroupId
+                  ? { ...e, grams: Math.max(1, Math.round((e.baseGrams ?? e.grams) * action.multiplier)) }
+                  : e,
+              ),
+            })),
+          ),
+        ),
+      };
     case 'REPLACE_ALL':
-      return seedNewPresetsAndBackfill(action.data);
+      return migrateKayuToRecipe(seedNewPresetsAndBackfill(action.data));
     default:
       return state;
   }
@@ -181,6 +250,7 @@ function loadLegacyAppData(): AppData | null {
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : presetIngredients,
       weekPlans: migrateLegacyWeekPlans(parsed.weekPlans),
       settings: {},
+      recipes: [],
     };
   } catch {
     return null;
@@ -219,25 +289,57 @@ function seedNewPresetsAndBackfill(data: AppData): AppData {
   };
 }
 
+// 「米(10倍がゆ)」食材を「米」食材+「10倍がゆ」料理に置き換える1回限りの移行。
+// 食材名の強制上書きを含む破壊的変更のため、presetRecommendationsSeededとは独立した
+// フラグ(kayuRecipeMigrated)で1回のみ実行する。
+// このマイグレーションはkayuRecipeMigratedフラグにより1ユーザーにつき1回しか実行されないため、
+// 「過去に削除されたプリセット料理を復活させない」ための許可リストは不要
+// (実行時点でpreset-recipe-kayuをユーザーが削除している余地がそもそもない)。
+// 参照先の食材が削除済みの場合は壊れた料理を残さないよう追加しない。
+function migrateKayuToRecipe(data: AppData): AppData {
+  if (data.settings.kayuRecipeMigrated) return data;
+  const ingredientIds = new Set(data.ingredients.map((i) => i.id));
+  const existingRecipeIds = new Set(data.recipes.map((r) => r.id));
+  const newRecipes = presetRecipes.filter(
+    (r) => !existingRecipeIds.has(r.id) && r.items.every((item) => ingredientIds.has(item.ingredientId)),
+  );
+  return {
+    ...data,
+    ingredients: data.ingredients.map((ing) =>
+      ing.id === 'preset-kayu' ? { ...ing, name: '米' } : ing,
+    ),
+    recipes: newRecipes.length > 0 ? [...data.recipes, ...newRecipes] : data.recipes,
+    settings: { ...data.settings, kayuRecipeMigrated: true },
+  };
+}
+
 function loadAppData(): AppData {
   const base = ((): AppData => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
-        return loadLegacyAppData() ?? { ingredients: presetIngredients, weekPlans: [], settings: {} };
+        return (
+          loadLegacyAppData() ?? {
+            ingredients: presetIngredients,
+            weekPlans: [],
+            settings: {},
+            recipes: [],
+          }
+        );
       }
       const parsed = JSON.parse(raw);
       return {
         ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : presetIngredients,
         weekPlans: Array.isArray(parsed.weekPlans) ? parsed.weekPlans : [],
         settings: parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {},
+        recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
       };
     } catch {
-      return { ingredients: presetIngredients, weekPlans: [], settings: {} };
+      return { ingredients: presetIngredients, weekPlans: [], settings: {}, recipes: [] };
     }
   })();
 
-  return seedNewPresetsAndBackfill(base);
+  return migrateKayuToRecipe(seedNewPresetsAndBackfill(base));
 }
 
 function saveAppData(data: AppData): void {
@@ -254,12 +356,29 @@ interface AppDataContextValue {
   updateIngredient: (ingredient: Ingredient) => void;
   deleteIngredient: (id: string) => void;
   addEntry: (weekStartDate: string, date: string, mealIndex: number, entry: PlanEntry) => void;
+  addEntries: (weekStartDate: string, date: string, mealIndex: number, entries: PlanEntry[]) => void;
   updateEntry: (weekStartDate: string, date: string, mealIndex: number, entry: PlanEntry) => void;
   deleteEntry: (weekStartDate: string, date: string, mealIndex: number, entryId: string) => void;
   addMeal: (weekStartDate: string, date: string) => void;
   removeLastMeal: (weekStartDate: string, date: string) => void;
   copyWeek: (sourceWeekStartDate: string, targetWeekStartDate: string) => void;
   setBabyBirthday: (babyBirthday: string | undefined) => void;
+  addRecipe: (recipe: Recipe) => void;
+  updateRecipe: (recipe: Recipe) => void;
+  deleteRecipe: (id: string) => void;
+  deleteRecipeGroup: (
+    weekStartDate: string,
+    date: string,
+    mealIndex: number,
+    recipeGroupId: string,
+  ) => void;
+  rescaleRecipeGroup: (
+    weekStartDate: string,
+    date: string,
+    mealIndex: number,
+    recipeGroupId: string,
+    multiplier: number,
+  ) => void;
   replaceAllData: (data: AppData) => void;
   getWeekPlan: (weekStartDate: string) => WeekPlan | undefined;
 }
@@ -280,6 +399,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     deleteIngredient: (id) => dispatch({ type: 'DELETE_INGREDIENT', id }),
     addEntry: (weekStartDate, date, mealIndex, entry) =>
       dispatch({ type: 'ADD_ENTRY', weekStartDate, date, mealIndex, entry }),
+    addEntries: (weekStartDate, date, mealIndex, entries) =>
+      dispatch({ type: 'ADD_ENTRIES', weekStartDate, date, mealIndex, entries }),
     updateEntry: (weekStartDate, date, mealIndex, entry) =>
       dispatch({ type: 'UPDATE_ENTRY', weekStartDate, date, mealIndex, entry }),
     deleteEntry: (weekStartDate, date, mealIndex, entryId) =>
@@ -290,6 +411,20 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     copyWeek: (sourceWeekStartDate, targetWeekStartDate) =>
       dispatch({ type: 'COPY_WEEK', sourceWeekStartDate, targetWeekStartDate }),
     setBabyBirthday: (babyBirthday) => dispatch({ type: 'SET_BABY_BIRTHDAY', babyBirthday }),
+    addRecipe: (recipe) => dispatch({ type: 'ADD_RECIPE', recipe }),
+    updateRecipe: (recipe) => dispatch({ type: 'UPDATE_RECIPE', recipe }),
+    deleteRecipe: (id) => dispatch({ type: 'DELETE_RECIPE', id }),
+    deleteRecipeGroup: (weekStartDate, date, mealIndex, recipeGroupId) =>
+      dispatch({ type: 'DELETE_RECIPE_GROUP', weekStartDate, date, mealIndex, recipeGroupId }),
+    rescaleRecipeGroup: (weekStartDate, date, mealIndex, recipeGroupId, multiplier) =>
+      dispatch({
+        type: 'RESCALE_RECIPE_GROUP',
+        weekStartDate,
+        date,
+        mealIndex,
+        recipeGroupId,
+        multiplier,
+      }),
     replaceAllData: (data) => dispatch({ type: 'REPLACE_ALL', data }),
     getWeekPlan: (weekStartDate) => state.weekPlans.find((w) => w.weekStartDate === weekStartDate),
   };

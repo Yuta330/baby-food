@@ -1,9 +1,10 @@
-import type { Ingredient, WeekPlan } from '../../types';
+import type { Ingredient, Recipe, WeekPlan } from '../../types';
 import { FOOD_CATEGORIES, MAX_MEALS_PER_DAY, MEAL_LABELS } from '../../types';
 import { getDayLabel, formatMonthDay } from '../../utils/date';
 import { CategoryCell } from './CategoryCell';
 import { EmptyMealCell } from './EmptyMealCell';
 import { MealSectionHeader } from './MealSectionHeader';
+import { MealRecipeSection } from './MealRecipeSection';
 import styles from './PlannerGrid.module.css';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   date: string;
   weekPlan: WeekPlan | undefined;
   ingredients: Ingredient[];
+  recipes: Recipe[];
   effectiveDates: Map<string, string>;
   babyBirthday: string | undefined;
 }
@@ -22,6 +24,7 @@ export function DayCard({
   date,
   weekPlan,
   ingredients,
+  recipes,
   effectiveDates,
   babyBirthday,
 }: Props) {
@@ -52,6 +55,18 @@ export function DayCard({
               />
             </div>
 
+            {mealIndex < mealCount && (
+              <MealRecipeSection
+                weekStartDate={weekStartDate}
+                date={date}
+                mealIndex={mealIndex}
+                meal={meal}
+                recipes={recipes}
+                ingredients={ingredients}
+                babyBirthday={babyBirthday}
+              />
+            )}
+
             {FOOD_CATEGORIES.map((category) => (
               <div key={category} className={styles.categoryRow}>
                 <span className={styles.categoryLabel}>{category}</span>
@@ -68,6 +83,7 @@ export function DayCard({
                       return (ing?.category ?? '緑') === category;
                     })}
                     ingredients={ingredients}
+                    recipes={recipes}
                     effectiveDates={effectiveDates}
                     babyBirthday={babyBirthday}
                   />
