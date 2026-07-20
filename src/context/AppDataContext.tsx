@@ -18,7 +18,7 @@ import { fillEmptyDaysFromWeek } from '../utils/copyWeek';
 const STORAGE_KEY = `babyFoodApp.v2${import.meta.env.VITE_STORAGE_KEY_SUFFIX ?? ''}`;
 const LEGACY_STORAGE_KEY = 'babyFoodApp.v1';
 
-type Action =
+export type Action =
   | { type: 'ADD_INGREDIENT'; ingredient: Ingredient }
   | { type: 'UPDATE_INGREDIENT'; ingredient: Ingredient }
   | { type: 'DELETE_INGREDIENT'; id: string }
@@ -91,7 +91,7 @@ function withWeekPlan(
     : [...weekPlans, updated];
 }
 
-function appDataReducer(state: AppData, action: Action): AppData {
+export function appDataReducer(state: AppData, action: Action): AppData {
   switch (action.type) {
     case 'ADD_INGREDIENT':
       return { ...state, ingredients: [...state.ingredients, action.ingredient] };
