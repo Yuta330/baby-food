@@ -7,26 +7,32 @@ Gitへのアクセスにはghを用いること。
 
 ## Project
 
-離乳食週間プランナー — a client-only weekly baby-food (weaning food) planner. Vite + React 19 + TypeScript. No backend; all data lives in the browser's `localStorage`. Deployed to GitHub Pages from `main` via `.github/workflows/deploy.yml`, live at https://Yuta330.github.io/baby-food/.
+離乳食週間プランナー — a client-only weekly baby-food (weaning food) planner. Vite + React 19 + TypeScript. No backend; all data lives in the browser's `localStorage`. Deployed to GitHub Pages from `main` via `.github/workflows/deploy.yml`, live at https://Yuta330.github.io/baby-food/. Non-`main` branches get their own preview deploy via `.github/workflows/deploy-dev.yml` (see Commands).
 
 ## Commands
 
 ```bash
-npm run dev      # dev server (http://localhost:5173)
-npm run build    # tsc -b (type check) + vite build — this is the only type-check step, there's no separate `tsc --noEmit` script
-npm run lint     # oxlint (rules in .oxlintrc.json)
-npm run preview  # preview the production build
+npm run dev         # dev server (http://localhost:5173)
+npm run build       # tsc -b (type check) + vite build — this is the only type-check step, there's no separate `tsc --noEmit` script
+npm run lint        # oxlint (rules in .oxlintrc.json)
+npm run preview     # preview the production build
+npm run test        # vitest run
+npm run test:watch  # vitest (watch mode)
 ```
 
-There is no test suite/framework configured in this repo.
+Tests live under `tests/` (not co-located `src/**/*.test.ts`), mirroring `src`'s structure: `tests/context/AppDataContext.test.ts`, `tests/utils/date.test.ts`, `tests/utils/ingredientHistory.test.ts`, `tests/utils/ingredientRecommendation.test.ts`, `tests/utils/mealSchedule.test.ts`. Coverage is reducer logic + pure utility functions only — no component/UI tests; verify UI changes by driving the app (see the `run-baby-food` skill). Vitest config is embedded in `vite.config.ts`'s `test:` block (`environment: 'node'`, `include: ['tests/**/*.test.ts']`) rather than a separate `vitest.config.ts`. `.github/workflows/ci.yml` runs `lint` → `test` → `build` on every PR and push to `main`.
 
-`vite.config.ts` sets `base: '/baby-food/'` for GitHub Pages — required whenever paths/assets are touched, since the app is not served from domain root.
+`vite.config.ts` sets `base: process.env.VITE_BASE ?? '/baby-food/'` for GitHub Pages — required whenever paths/assets are touched, since the app is not served from domain root. `.github/workflows/deploy-dev.yml` deploys any push to a branch other than `main`/`gh-pages` as a preview under `/baby-food/dev/`, building with `VITE_BASE=/baby-food/dev/` and `VITE_STORAGE_KEY_SUFFIX=.dev` so the preview's `localStorage` data (see below) stays isolated from production.
 
 ## Architecture
 
-**State**: A single `AppData { ingredients: Ingredient[]; weekPlans: WeekPlan[] }` tree lives in React Context + `useReducer` (`src/context/AppDataContext.tsx`). Every mutation goes through the reducer's `Action` union and is auto-persisted to `localStorage` (`babyFoodApp.v2`) via a `useEffect` on state change. There's a one-time migration path from the legacy `babyFoodApp.v1` schema (`migrateLegacyWeekPlans`) — bump the storage key and add a migration function if the schema changes again.
+**State**: A single `AppData { ingredients: Ingredient[]; weekPlans: WeekPlan[]; settings: AppSettings; recipes: Recipe[] }` tree lives in React Context + `useReducer` (`src/context/AppDataContext.tsx`). Every mutation goes through the reducer's `Action` union and is auto-persisted to `localStorage` via a `useEffect` on state change, under key `` `babyFoodApp.v2${import.meta.env.VITE_STORAGE_KEY_SUFFIX ?? ''}` `` (see Commands — the suffix isolates the dev-preview deploy's data from production). There's a one-time migration path from the legacy, unsuffixed `babyFoodApp.v1` schema (`migrateLegacyWeekPlans`) — bump the storage key and add a migration function if the schema changes again.
 
-**Data model** (`src/types.ts`): `WeekPlan.days` is always exactly 7 entries (Mon–Sun); each `DayPlan.meals` is 1–`MAX_MEALS_PER_DAY` (3) entries, always contiguous from index 0 (no gaps). Entry-level reducer actions (`ADD_ENTRY`/`UPDATE_ENTRY`/`DELETE_ENTRY`) address meals by **`mealIndex: number`**, not `mealId` — this is deliberate, since a day's meals may not exist in state yet (weeks/days are created lazily via `withWeekPlan`/`createEmptyWeekPlan` the first time they're touched), so there's no stable id to target ahead of creation.
+**Data model** (`src/types.ts`): `WeekPlan.days` is always exactly 7 entries (Mon–Sun); each `DayPlan.meals` is 1–`MAX_MEALS_PER_DAY` (3) entries, always contiguous from index 0 (no gaps). Entry-level reducer actions (`ADD_ENTRY`/`UPDATE_ENTRY`/`DELETE_ENTRY`) address meals by **`mealIndex: number`**, not `mealId` — this is deliberate, since a day's meals may not exist in state yet (weeks/days are created lazily via `withWeekPlan`/`createEmptyWeekPlan` the first time they're touched), so there's no stable id to target ahead of creation. `Ingredient.defaultGrams` plus the `GRAM_STEP`/`MIN_GRAMS`/`MAX_GRAMS` constants drive the 5g-step gram stepper's default value and bounds.
+
+**食事数の自動決定**: `getDefaultMealCount(date, schedule)` (`src/utils/mealSchedule.ts`) is a pure function that returns 1–3 from `AppSettings.mealCountSchedule`'s `secondMealStartDate`/`thirdMealStartDate` via plain `'YYYY-MM-DD'` string comparison against `date`. `WeekPlannerPage.tsx`/`DayCard.tsx` use it to decide a day's default meal count; the schedule itself is set via `SettingsPage.tsx`, dispatching `SET_MEAL_COUNT_SCHEDULE`.
+
+**料理(レシピ)ベースの登録**: `Recipe { id, name, items: RecipeItem[] }` (`AppData.recipes`) is a separate ingredient-list master, CRUD'd via `ADD_RECIPE`/`UPDATE_RECIPE`/`DELETE_RECIPE` in `src/components/recipes/` (`RecipeMasterPage.tsx`, `RecipeList.tsx`, `RecipeForm.tsx`), seeded from `src/data/presetRecipes.ts`. Adding a recipe to a meal (`src/components/planner/MealRecipeSection.tsx`) gram-scales each `RecipeItem` by a multiplier and dispatches the batch action `ADD_ENTRIES` (still `mealIndex`-addressed, sibling to `ADD_ENTRY`) with one `PlanEntry` per item, all sharing a `recipeGroupId`; each entry keeps `recipeId` (source recipe, for display after master edits/deletes) and `baseGrams` (pre-multiplier snapshot, for re-scaling). `DELETE_RECIPE_GROUP`/`RESCALE_RECIPE_GROUP` operate on the whole group by that id.
 
 **Dates** are plain `'YYYY-MM-DD'` strings everywhere (state, storage, comparisons), never `Date` objects — string comparison is chronological by construction. All date math goes through `src/utils/date.ts` (`getMonday`, `addDays`, `getWeekDates`, `isDateInWeek`, etc.); avoid introducing `Date`-object comparisons elsewhere.
 
