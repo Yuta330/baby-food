@@ -3,17 +3,15 @@ import type { Ingredient, WeekPlan } from '../types';
 /**
  * 食材ごとの「有効な初めて食べた日」をまとめて算出する。
  * 優先度: Ingredient.firstTriedDate(手動、未来日も可) >
- *         週間プランナー全体で今日以前に登場した最も早い日付(自動推定)
+ *         週間プランナー全体で登場した最も早い日付(自動推定、未来日を含む)
  */
 export function getEffectiveFirstTriedDateMap(
   ingredients: Ingredient[],
   weekPlans: WeekPlan[],
-  today: string,
 ): Map<string, string> {
   const autoEarliest = new Map<string, string>();
   for (const week of weekPlans) {
     for (const day of week.days) {
-      if (day.date > today) continue;
       for (const meal of day.meals) {
         for (const entry of meal.entries) {
           const current = autoEarliest.get(entry.ingredientId);

@@ -25,7 +25,7 @@ export function IngredientMasterPage() {
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [adding, setAdding] = useState(false);
   const today = toDateKey(new Date());
-  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
+  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans);
   const ageMonths = getAgeInMonths(data.settings.babyBirthday, today);
 
   return (
