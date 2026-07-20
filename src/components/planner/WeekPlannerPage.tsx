@@ -1,5 +1,5 @@
 import { useAppData } from '../../context/AppDataContext';
-import { addDays, getWeekDates, toDateKey } from '../../utils/date';
+import { addDays, getWeekDates } from '../../utils/date';
 import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
 import { weekPlanHasAnyEntry } from '../../utils/copyWeek';
 import { WeekSelector } from './WeekSelector';
@@ -15,8 +15,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
   const { data, getWeekPlan, copyWeek } = useAppData();
   const weekPlan = getWeekPlan(weekStartDate);
   const dates = getWeekDates(weekStartDate);
-  const today = toDateKey(new Date());
-  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
+  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans);
   const babyBirthday = data.settings.babyBirthday;
   const mealCountSchedule = data.settings.mealCountSchedule;
   const previousWeekStartDate = addDays(weekStartDate, -7);

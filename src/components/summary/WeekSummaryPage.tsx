@@ -1,6 +1,5 @@
 import { useAppData } from '../../context/AppDataContext';
 import { summarizeWeek } from '../../utils/summary';
-import { toDateKey } from '../../utils/date';
 import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
 import { WeekSelector } from '../planner/WeekSelector';
 import { SummaryTable } from './SummaryTable';
@@ -13,8 +12,7 @@ interface Props {
 
 export function WeekSummaryPage({ weekStartDate, onWeekChange }: Props) {
   const { data, getWeekPlan } = useAppData();
-  const today = toDateKey(new Date());
-  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans, today);
+  const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans);
   const rows = summarizeWeek(weekStartDate, getWeekPlan(weekStartDate), data.ingredients, effectiveDates);
 
   return (
