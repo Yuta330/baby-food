@@ -107,8 +107,11 @@ what a human would do; an agent in a headless container should use the driver ab
 
 ## Test
 
-No test suite is configured in this repo (`CLAUDE.md` confirms this explicitly). Verification is
-`npm run build` (type-check) + `npm run lint` (oxlint) + driving the app as above.
+`npm run test` (vitest) covers reducer logic and pure utility functions under `tests/` — it does
+**not** touch components or UI (`CLAUDE.md`'s Commands section has the file list). So for anything
+UI-visible, `npm run test` passing is not sufficient verification: drive the app with this skill's
+driver as above. Full verification is `npm run build` (type-check) + `npm run lint` (oxlint) +
+`npm run test` + driving the app.
 
 ---
 

@@ -16,13 +16,16 @@
 ## 開発
 
 ```bash
-npm install      # 依存関係のインストール
-npm run dev      # 開発サーバー起動 (http://localhost:5173)
-npm run build    # 型チェック + 本番ビルド
-npm run preview  # ビルド結果のプレビュー
-npm run lint     # Lint実行
+npm install         # 依存関係のインストール
+npm run dev         # 開発サーバー起動 (http://localhost:5173)
+npm run build       # 型チェック + 本番ビルド
+npm run preview     # ビルド結果のプレビュー
+npm run lint        # Lint実行
+npm run test        # テスト実行 (Vitest)
+npm run test:watch  # テストをwatchモードで実行
 ```
 
 ## 公開URL
 
-https://Yuta330.github.io/baby-food/
+- 本番: https://Yuta330.github.io/baby-food/ (`main`ブランチから自動デプロイ)
+- 作業ブランチプレビュー: https://Yuta330.github.io/baby-food/dev/ (`main`/`gh-pages`以外のブランチをpushすると自動デプロイ。本番とは`localStorage`のデータが分離されています)
