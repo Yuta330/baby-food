@@ -2,6 +2,8 @@ import type { FoodCategory, Ingredient } from '../../types';
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABEL } from '../../types';
 import { formatYmd } from '../../utils/date';
 import { hasNoPastRecord } from '../../utils/ingredientHistory';
+import type { ExperienceFilter, RecommendationFilter } from '../../utils/ingredientFilter';
+import { matchesIngredientFilter } from '../../utils/ingredientFilter';
 import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
 import styles from './IngredientList.module.css';
 
@@ -10,6 +12,8 @@ interface Props {
   today: string;
   effectiveDates: Map<string, string>;
   ageMonths: number | null;
+  recommendationFilter: RecommendationFilter;
+  experienceFilter: ExperienceFilter;
   onEdit: (ingredient: Ingredient) => void;
   onDelete: (ingredient: Ingredient) => void;
 }
@@ -25,18 +29,31 @@ export function IngredientList({
   today,
   effectiveDates,
   ageMonths,
+  recommendationFilter,
+  experienceFilter,
   onEdit,
   onDelete,
 }: Props) {
   return (
     <div className={styles.groups}>
       {FOOD_CATEGORIES.map((category) => {
-        const items = ingredients.filter((i) => i.category === category);
+        const categoryItems = ingredients.filter((i) => i.category === category);
+        const items = categoryItems.filter((ingredient) => {
+          const effectiveDate = effectiveDates.get(ingredient.id);
+          const status = getRecommendationStatus(ingredient, ageMonths);
+          const hasNoRecord = hasNoPastRecord(effectiveDate, today);
+          return matchesIngredientFilter(status, hasNoRecord, {
+            recommendation: recommendationFilter,
+            experience: experienceFilter,
+          });
+        });
         return (
           <section key={category} className={styles.group}>
             <h3 className={CATEGORY_CLASS[category]}>{FOOD_CATEGORY_LABEL[category]}</h3>
-            {items.length === 0 ? (
+            {categoryItems.length === 0 ? (
               <p className={styles.empty}>食材がありません</p>
+            ) : items.length === 0 ? (
+              <p className={styles.empty}>フィルタ条件に一致する食材がありません</p>
             ) : (
               <ul className={styles.list}>
                 {items.map((ingredient) => {

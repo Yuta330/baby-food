@@ -4,7 +4,13 @@ import { useAppData } from '../../context/AppDataContext';
 import { createId } from '../../utils/id';
 import { getAgeInMonths, toDateKey } from '../../utils/date';
 import { getEffectiveFirstTriedDateMap } from '../../utils/ingredientHistory';
+import {
+  DEFAULT_INGREDIENT_FILTERS,
+  type ExperienceFilter,
+  type RecommendationFilter,
+} from '../../utils/ingredientFilter';
 import { IngredientForm } from './IngredientForm';
+import { IngredientFilterBar } from './IngredientFilterBar';
 import { IngredientList } from './IngredientList';
 import styles from './IngredientMasterPage.module.css';
 
@@ -24,6 +30,12 @@ export function IngredientMasterPage() {
   const { data, addIngredient, updateIngredient, deleteIngredient } = useAppData();
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [adding, setAdding] = useState(false);
+  const [recommendationFilter, setRecommendationFilter] = useState<RecommendationFilter>(
+    DEFAULT_INGREDIENT_FILTERS.recommendation,
+  );
+  const [experienceFilter, setExperienceFilter] = useState<ExperienceFilter>(
+    DEFAULT_INGREDIENT_FILTERS.experience,
+  );
   const today = toDateKey(new Date());
   const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans);
   const ageMonths = getAgeInMonths(data.settings.babyBirthday, today);
@@ -81,11 +93,20 @@ export function IngredientMasterPage() {
         </button>
       )}
 
+      <IngredientFilterBar
+        recommendation={recommendationFilter}
+        experience={experienceFilter}
+        onRecommendationChange={setRecommendationFilter}
+        onExperienceChange={setExperienceFilter}
+      />
+
       <IngredientList
         ingredients={data.ingredients}
         today={today}
         effectiveDates={effectiveDates}
         ageMonths={ageMonths}
+        recommendationFilter={recommendationFilter}
+        experienceFilter={experienceFilter}
         onEdit={(ingredient) => {
           setAdding(false);
           setEditing(ingredient);
