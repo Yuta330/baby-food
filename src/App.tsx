@@ -6,24 +6,36 @@ import { IngredientMasterPage } from './components/ingredients/IngredientMasterP
 import { RecipeMasterPage } from './components/recipes/RecipeMasterPage';
 import { WeekSummaryPage } from './components/summary/WeekSummaryPage';
 import { SettingsPage } from './components/settings/SettingsPage';
-import { getMonday } from './utils/date';
+import { getMonday, toDateKey } from './utils/date';
 
 export type Tab = 'planner' | 'ingredients' | 'recipes' | 'summary' | 'settings';
 
 function App() {
   const [tab, setTab] = useState<Tab>('planner');
-  const [weekStartDate, setWeekStartDate] = useState(() => getMonday(new Date()));
+  const now = new Date();
+  const today = toDateKey(now);
+  const todayWeekStart = getMonday(now);
+  const [weekStartDate, setWeekStartDate] = useState(todayWeekStart);
 
   return (
     <AppDataProvider>
       <NavBar current={tab} onChange={setTab} />
       {tab === 'planner' && (
-        <WeekPlannerPage weekStartDate={weekStartDate} onWeekChange={setWeekStartDate} />
+        <WeekPlannerPage
+          weekStartDate={weekStartDate}
+          onWeekChange={setWeekStartDate}
+          today={today}
+          todayWeekStart={todayWeekStart}
+        />
       )}
       {tab === 'ingredients' && <IngredientMasterPage />}
       {tab === 'recipes' && <RecipeMasterPage />}
       {tab === 'summary' && (
-        <WeekSummaryPage weekStartDate={weekStartDate} onWeekChange={setWeekStartDate} />
+        <WeekSummaryPage
+          weekStartDate={weekStartDate}
+          onWeekChange={setWeekStartDate}
+          todayWeekStart={todayWeekStart}
+        />
       )}
       {tab === 'settings' && <SettingsPage />}
     </AppDataProvider>

@@ -9,6 +9,7 @@ import {
   getMonday,
   getWeekDates,
   isDateInWeek,
+  isToday,
 } from '../../src/utils/date';
 
 describe('getMonday', () => {
@@ -75,6 +76,16 @@ describe('isDateInWeek', () => {
   it('週の外の日付はfalse', () => {
     expect(isDateInWeek('2026-07-27', '2026-07-20')).toBe(false);
     expect(isDateInWeek('2026-07-19', '2026-07-20')).toBe(false);
+  });
+});
+
+describe('isToday', () => {
+  it('日付が今日と一致すればtrueを返す', () => {
+    expect(isToday('2026-07-20', '2026-07-20')).toBe(true);
+  });
+
+  it('日付が今日と異なればfalseを返す', () => {
+    expect(isToday('2026-07-21', '2026-07-20')).toBe(false);
   });
 });
 

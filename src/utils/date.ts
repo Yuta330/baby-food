@@ -56,6 +56,10 @@ export function isDateInWeek(date: string | undefined, weekStartDate: string): b
   return date >= weekStartDate && date <= weekEnd; // YYYY-MM-DD文字列は辞書順=時系列順
 }
 
+export function isToday(dateKey: string, today: string): boolean {
+  return dateKey === today;
+}
+
 const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**

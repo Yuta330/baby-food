@@ -8,16 +8,17 @@ import styles from './WeekSummaryPage.module.css';
 interface Props {
   weekStartDate: string;
   onWeekChange: (weekStartDate: string) => void;
+  todayWeekStart: string;
 }
 
-export function WeekSummaryPage({ weekStartDate, onWeekChange }: Props) {
+export function WeekSummaryPage({ weekStartDate, onWeekChange, todayWeekStart }: Props) {
   const { data, getWeekPlan } = useAppData();
   const effectiveDates = getEffectiveFirstTriedDateMap(data.ingredients, data.weekPlans);
   const rows = summarizeWeek(weekStartDate, getWeekPlan(weekStartDate), data.ingredients, effectiveDates);
 
   return (
     <div className={styles.page}>
-      <WeekSelector weekStartDate={weekStartDate} onChange={onWeekChange} />
+      <WeekSelector weekStartDate={weekStartDate} onChange={onWeekChange} todayWeekStart={todayWeekStart} />
       <SummaryTable rows={rows} />
     </div>
   );
