@@ -9,8 +9,8 @@ import {
   type ExperienceFilter,
   type RecommendationFilter,
 } from '../../utils/ingredientFilter';
-import { IngredientForm } from './IngredientForm';
 import { IngredientFilterBar } from './IngredientFilterBar';
+import { IngredientForm } from './IngredientForm';
 import { IngredientList } from './IngredientList';
 import styles from './IngredientMasterPage.module.css';
 

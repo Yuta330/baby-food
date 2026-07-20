@@ -2,8 +2,11 @@ import type { FoodCategory, Ingredient } from '../../types';
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABEL } from '../../types';
 import { formatYmd } from '../../utils/date';
 import { hasNoPastRecord } from '../../utils/ingredientHistory';
-import type { ExperienceFilter, RecommendationFilter } from '../../utils/ingredientFilter';
-import { matchesIngredientFilter } from '../../utils/ingredientFilter';
+import {
+  matchesIngredientFilter,
+  type ExperienceFilter,
+  type RecommendationFilter,
+} from '../../utils/ingredientFilter';
 import { getRecommendationStatus } from '../../utils/ingredientRecommendation';
 import styles from './IngredientList.module.css';
 
@@ -38,15 +41,22 @@ export function IngredientList({
     <div className={styles.groups}>
       {FOOD_CATEGORIES.map((category) => {
         const categoryItems = ingredients.filter((i) => i.category === category);
-        const items = categoryItems.filter((ingredient) => {
+        const enriched = categoryItems.map((ingredient) => {
           const effectiveDate = effectiveDates.get(ingredient.id);
-          const status = getRecommendationStatus(ingredient, ageMonths);
-          const hasNoRecord = hasNoPastRecord(effectiveDate, today);
-          return matchesIngredientFilter(status, hasNoRecord, {
+          return {
+            ingredient,
+            effectiveDate,
+            isAutoEstimate: !ingredient.firstTriedDate && Boolean(effectiveDate),
+            status: getRecommendationStatus(ingredient, ageMonths),
+            hasNoRecord: hasNoPastRecord(effectiveDate, today),
+          };
+        });
+        const items = enriched.filter(({ status, hasNoRecord }) =>
+          matchesIngredientFilter(status, hasNoRecord, {
             recommendation: recommendationFilter,
             experience: experienceFilter,
-          });
-        });
+          }),
+        );
         return (
           <section key={category} className={styles.group}>
             <h3 className={CATEGORY_CLASS[category]}>{FOOD_CATEGORY_LABEL[category]}</h3>
@@ -56,10 +66,7 @@ export function IngredientList({
               <p className={styles.empty}>フィルタ条件に一致する食材がありません</p>
             ) : (
               <ul className={styles.list}>
-                {items.map((ingredient) => {
-                  const effectiveDate = effectiveDates.get(ingredient.id);
-                  const isAutoEstimate = !ingredient.firstTriedDate && effectiveDate;
-                  const status = getRecommendationStatus(ingredient, ageMonths);
+                {items.map(({ ingredient, effectiveDate, isAutoEstimate, status, hasNoRecord }) => {
                   return (
                     <li key={ingredient.id} className={styles.item}>
                       <span className={styles.name}>
@@ -69,7 +76,7 @@ export function IngredientList({
                             ({isAutoEstimate ? `推定 ${formatYmd(effectiveDate)}` : formatYmd(effectiveDate)})
                           </span>
                         )}
-                        {hasNoPastRecord(effectiveDate, today) && (
+                        {hasNoRecord && (
                           <span className={styles.unexperiencedBadge}>まだ</span>
                         )}
                         {status === 'notYetRecommended' && (
