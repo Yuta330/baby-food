@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Ingredient } from '../types';
-import { getRecommendationStatus } from './ingredientRecommendation';
+import type { Ingredient } from '../../src/types';
+import { getRecommendationStatus } from '../../src/utils/ingredientRecommendation';
 
 function ingredient(overrides: Partial<Ingredient> = {}): Ingredient {
   return { id: 'a', name: 'a', category: '赤', ...overrides };

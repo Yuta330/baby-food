@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { Action } from './AppDataContext';
-import { appDataReducer } from './AppDataContext';
-import type { AppData } from '../types';
+import type { Action } from '../../src/context/AppDataContext';
+import { appDataReducer } from '../../src/context/AppDataContext';
+import type { AppData } from '../../src/types';
 
 function emptyState(): AppData {
   return { ingredients: [], weekPlans: [], settings: {}, recipes: [] };

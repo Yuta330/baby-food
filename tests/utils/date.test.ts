@@ -9,7 +9,7 @@ import {
   getMonday,
   getWeekDates,
   isDateInWeek,
-} from './date';
+} from '../../src/utils/date';
 
 describe('getMonday', () => {
   it('週の途中の日付から月曜日を返す', () => {

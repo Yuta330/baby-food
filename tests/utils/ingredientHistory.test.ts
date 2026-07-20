@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Ingredient, WeekPlan } from '../types';
-import { getEffectiveFirstTriedDateMap, hasNoPastRecord } from './ingredientHistory';
+import type { Ingredient, WeekPlan } from '../../src/types';
+import { getEffectiveFirstTriedDateMap, hasNoPastRecord } from '../../src/utils/ingredientHistory';
 
 function ingredient(id: string, overrides: Partial<Ingredient> = {}): Ingredient {
   return { id, name: id, category: '赤', ...overrides };

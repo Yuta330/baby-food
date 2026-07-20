@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDefaultMealCount } from './mealSchedule';
+import { getDefaultMealCount } from '../../src/utils/mealSchedule';
 
 describe('getDefaultMealCount', () => {
   it('スケジュール未設定なら常に1', () => {
