@@ -9,9 +9,11 @@ import styles from './PlannerGrid.module.css';
 interface Props {
   weekStartDate: string;
   onWeekChange: (weekStartDate: string) => void;
+  today: string;
+  todayWeekStart: string;
 }
 
-export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
+export function WeekPlannerPage({ weekStartDate, onWeekChange, today, todayWeekStart }: Props) {
   const { data, getWeekPlan, copyWeek } = useAppData();
   const weekPlan = getWeekPlan(weekStartDate);
   const dates = getWeekDates(weekStartDate);
@@ -26,6 +28,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
       <WeekSelector
         weekStartDate={weekStartDate}
         onChange={onWeekChange}
+        todayWeekStart={todayWeekStart}
         onCopyPreviousWeek={() => copyWeek(previousWeekStartDate, weekStartDate)}
         canCopyPreviousWeek={canCopyPreviousWeek}
       />
@@ -36,6 +39,7 @@ export function WeekPlannerPage({ weekStartDate, onWeekChange }: Props) {
             key={date}
             weekStartDate={weekStartDate}
             date={date}
+            today={today}
             weekPlan={weekPlan}
             ingredients={data.ingredients}
             recipes={data.recipes}

@@ -45,6 +45,10 @@
   font-size: 0.85rem;
 }
 
+.date.today {
+  font-weight: 700;
+}
+
 .mealSection {
   display: flex;
   flex-direction: column;

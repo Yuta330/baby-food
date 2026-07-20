@@ -20,7 +20,7 @@
   margin-left: auto;
 }
 
-.copyButton:disabled {
+.selector button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

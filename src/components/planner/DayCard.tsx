@@ -1,6 +1,6 @@
 import type { Ingredient, MealCountSchedule, Recipe, WeekPlan } from '../../types';
 import { FOOD_CATEGORIES, MAX_MEALS_PER_DAY, MEAL_LABELS } from '../../types';
-import { getDayLabel, formatMonthDay } from '../../utils/date';
+import { getDayLabel, formatMonthDay, isToday } from '../../utils/date';
 import { getDefaultMealCount } from '../../utils/mealSchedule';
 import { CategoryCell } from './CategoryCell';
 import { MealRecipeSection } from './MealRecipeSection';
@@ -9,6 +9,7 @@ import styles from './PlannerGrid.module.css';
 interface Props {
   weekStartDate: string;
   date: string;
+  today: string;
   weekPlan: WeekPlan | undefined;
   ingredients: Ingredient[];
   recipes: Recipe[];
@@ -22,6 +23,7 @@ const MEAL_INDEXES = Array.from({ length: MAX_MEALS_PER_DAY }, (_, i) => i);
 export function DayCard({
   weekStartDate,
   date,
+  today,
   weekPlan,
   ingredients,
   recipes,
@@ -35,7 +37,10 @@ export function DayCard({
   return (
     <div className={styles.dayCard}>
       <div className={styles.dayHeader}>
-        {getDayLabel(date, weekStartDate)} <span className={styles.date}>{formatMonthDay(date)}</span>
+        {getDayLabel(date, weekStartDate)}{' '}
+        <span className={isToday(date, today) ? `${styles.date} ${styles.today}` : styles.date}>
+          {formatMonthDay(date)}
+        </span>
       </div>
 
       {MEAL_INDEXES.map((mealIndex) => {
